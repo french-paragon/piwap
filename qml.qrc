@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>PageActions.qml</file>
+        <file>qmlcomponents/styles/PiwapTabButtonStyle.qml</file>
+        <file>qmlcomponents/styles/PiwapTabButtonTextStyle.qml</file>
+        <file>qmlcomponents/editors/ResizeOpEditor.qml</file>
+        <file>qmlcomponents/editors/SaveOpEditor.qml</file>
+        <file>qmlcomponents/controls/FilePathField.qml</file>
+        <file>qmlcomponents/controls/DraggableListItem.qml</file>
+        <file>qmlcomponents/controls/DraggableItemDropArea.qml</file>
+        <file>PageImages.qml</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/operation.svg</file>
+        <file>icons/add_operation.svg</file>
+        <file>icons/remove_operation.svg</file>
+        <file>icons/add_image.svg</file>
+        <file>icons/image.svg</file>
+        <file>icons/remove_image.svg</file>
+    </qresource>
+</RCC>
