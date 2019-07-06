@@ -120,6 +120,28 @@ ApplicationWindow {
         }
     }
 
+    DropArea {
+        id: fileInputArea
+
+        z: 12
+
+        anchors.fill: parent
+
+        onEntered: {
+            if (!drag.hasUrls) {
+                drag.accepted = false
+            }
+        }
+
+        onDropped: {
+            for (var i in drop.urls) {
+                piwapp.images.insertImage(drop.urls[i]);
+            }
+
+            swipeView.setCurrentIndex(1);
+        }
+    }
+
     FileDialog {
         id: loadImageFileDialog
 
