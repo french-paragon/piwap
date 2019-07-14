@@ -55,6 +55,9 @@ ColumnLayout {
             operation.fileName = fileNameField.text
         }
 
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("New name of the file")
+
     }
 
     Text {
@@ -73,6 +76,9 @@ ColumnLayout {
         onTextChanged: {
             operation.fileType = fileTypeField.text
         }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("File extension (type will be deduced from it)")
 
     }
 
@@ -102,6 +108,9 @@ ColumnLayout {
                 saveOpEditor.operation.compressionParameter = qualitySpinBox.value;
             }
         }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Image quality or compression (from 0 to 100)")
 
     }
 

@@ -68,6 +68,20 @@ SwipeView {
                             color: (index === availableActionsListView.currentIndex) ? "white" : "black"
                         }
 
+                        MouseArea {
+                            id: toolTipArea
+                            anchors.fill: parent
+
+                            hoverEnabled: true
+
+                            ToolTip {
+                                id: actionToolTip
+                                text: toolTip
+
+                                visible: parent.containsMouse && text != ""
+                            }
+                        }
+
                     }
                 }
 
@@ -98,6 +112,9 @@ SwipeView {
 
                             actionManagement.currentIndex = 1;
                         }
+
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Add selected action to the operations queue")
                     }
 
                     Button {
@@ -107,6 +124,9 @@ SwipeView {
                         onClicked: {
                             actionManagement.currentIndex = 1;
                         }
+
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Go back to the operations queue")
                     }
 
                 }

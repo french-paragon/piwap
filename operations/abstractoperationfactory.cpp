@@ -32,6 +32,7 @@ QString AbstractOperationFactory::getIconUrl() const {
 	return IconUrl;
 
 }
+
 QString AbstractOperationFactory::getOpName() const {
 
 	AbstractImageOperation* op = factorizeOperation();
@@ -41,6 +42,12 @@ QString AbstractOperationFactory::getOpName() const {
 	delete op;
 
 	return OpName;
+
+}
+
+QString AbstractOperationFactory::getToolTip() const {
+
+	return "";
 
 }
 

@@ -32,8 +32,10 @@ Item {
         }
 
         MouseArea {
+
             id: dragArea
             anchors.fill: parent
+
             drag.target: parent
             // Keep the dragged item at the same X position. Nice for lists, but not mandatory
             drag.axis: Drag.YAxis

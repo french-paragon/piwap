@@ -104,6 +104,9 @@ Page {
                     root.imageProcesingTriggered();
                 }
 
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Process the images in the queue")
+
             }
         }
 

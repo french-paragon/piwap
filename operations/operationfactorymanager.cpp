@@ -25,6 +25,8 @@ QVariant OperationFactoryManager::data(const QModelIndex &index, int role) const
 	switch (role) {
 	case Qt::DisplayRole :
 		return _factories.at(index.row())->getOpName();
+	case Qt::ToolTipRole :
+		return _factories.at(index.row())->getToolTip();
 	case Qt::DecorationRole :
 		return QIcon(_factories.at(index.row())->getIconUrl());
 	case TypeIdRole:

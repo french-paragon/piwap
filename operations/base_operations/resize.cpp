@@ -237,6 +237,9 @@ ResizeOpFactory::ResizeOpFactory(QObject * parent) : AbstractOperationFactory (p
 AbstractImageOperation* ResizeOpFactory::factorizeOperation(QObject * operationParent) const {
 	return new Resize(operationParent);
 }
+QString ResizeOpFactory::getToolTip() const {
+	return tr("Resize the image to a fixed size in pixels with some aspect ratio constrains");
+}
 
 } // namespace Operations
 } // namespace Piwap

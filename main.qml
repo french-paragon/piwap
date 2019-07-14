@@ -36,6 +36,9 @@ ApplicationWindow {
                     swipeView.setCurrentIndex(0);
                     actionManagement.currentIndex = 0;
                 }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Add an operation to the queue")
             }
 
             ToolButton {
@@ -57,6 +60,9 @@ ApplicationWindow {
                         }
                     }
                 }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Remove selected operation from the queue")
             }
 
             Item {
@@ -79,6 +85,9 @@ ApplicationWindow {
                     swipeView.setCurrentIndex(1);
                     loadImageFileDialog.open();
                 }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Add an image to the queue")
             }
 
             ToolButton {
@@ -97,6 +106,9 @@ ApplicationWindow {
                         piwapp.images.removeImage(imageManagement.imageListIndex)
                     }
                 }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Remove selected image from the queue")
             }
 
         }
@@ -169,6 +181,9 @@ ApplicationWindow {
             contentItem: PiwapStyles.PiwapTabButtonTextStyle {
 
             }
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Manage the operations queue")
         }
 
         TabButton {
@@ -179,6 +194,9 @@ ApplicationWindow {
             contentItem: PiwapStyles.PiwapTabButtonTextStyle {
 
             }
+
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Manage the images queue")
         }
 
 

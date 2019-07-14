@@ -86,9 +86,9 @@ int Save::doOperation(cv::Mat & image, ImageInfos * infos) const {
 	}
 
 	if (type.compare("png", Qt::CaseInsensitive) == 0) {
-		if (_compressionParameter >= 0 && _compressionParameter < 10) {
+		if (_compressionParameter >= 0 && _compressionParameter <= 100) {
 			qualityParam.push_back(CV_IMWRITE_PNG_COMPRESSION);
-			qualityParam.push_back(_compressionParameter);
+			qualityParam.push_back((_compressionParameter == 100) ? _compressionParameter/10 : 9);
 		}
 	}
 
@@ -171,6 +171,10 @@ SaveOpFactory::SaveOpFactory(QObject * parent) : AbstractOperationFactory (paren
 
 AbstractImageOperation* SaveOpFactory::factorizeOperation(QObject * operationParent) const {
 	return new Save(operationParent);
+}
+
+QString SaveOpFactory::getToolTip() const {
+	return tr("Operation to save images to any format but with minimal options");
 }
 
 } // namespace Operations

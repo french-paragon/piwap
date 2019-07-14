@@ -19,6 +19,7 @@ public:
 
 	virtual QString getIconUrl() const;
 	virtual QString getOpName() const;
+	virtual QString getToolTip() const;
 
 Q_SIGNALS:
 

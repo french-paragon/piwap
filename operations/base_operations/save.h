@@ -64,6 +64,8 @@ public :
 	explicit SaveOpFactory(QObject * parent = nullptr);
 
 	virtual AbstractImageOperation* factorizeOperation(QObject * operationParent = nullptr) const;
+
+	virtual QString getToolTip() const;
 };
 
 } // namespace Operations
