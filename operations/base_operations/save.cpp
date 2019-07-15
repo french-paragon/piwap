@@ -108,6 +108,10 @@ QString Save::getOpName() const {
 	return tr("Save");
 }
 
+QString Save::getIconUrl() const {
+	return "qrc:/icons/save.svg";
+}
+
 QString Save::getPropertiesEditorUrl() const {
 	return "qrc:/qmlcomponents/editors/SaveOpEditor.qml";
 }

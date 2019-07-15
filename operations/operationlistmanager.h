@@ -11,10 +11,17 @@ class OperationListManager : public QAbstractListModel
 {
 	Q_OBJECT
 public:
+
+	enum SpecialRoles {
+		IconPathRole = Qt::UserRole
+	};
+
 	OperationListManager(QObject* parent = nullptr);
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+	virtual QHash<int, QByteArray> roleNames() const;
 
 	void removeOp (int row);
 	void insertOp (AbstractImageOperation* op, int p_row = -1);

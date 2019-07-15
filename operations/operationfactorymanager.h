@@ -13,7 +13,8 @@ class OperationFactoryManager : public QAbstractListModel
 public:
 
 	enum SpecialRoles {
-		TypeIdRole = Qt::UserRole
+		TypeIdRole = Qt::UserRole,
+		IconPathRole = Qt::UserRole + 1
 	};
 
 	explicit OperationFactoryManager(QObject *parent = nullptr);

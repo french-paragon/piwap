@@ -28,11 +28,21 @@ QVariant OperationListManager::data(const QModelIndex &index, int role) const {
 	switch (role) {
 	case Qt::DisplayRole :
 		return _operations.at(index.row())->getOpName();
+	case IconPathRole :
+		return _operations.at(index.row())->getIconUrl();
 	case Qt::DecorationRole :
 		return QIcon(_operations.at(index.row())->getIconUrl());
 	default :
 		return QVariant();
 	}
+
+}
+QHash<int, QByteArray> OperationListManager::roleNames() const {
+
+	QHash<int, QByteArray> ret = QAbstractListModel::roleNames();
+	ret.insert(IconPathRole, "iconPath");
+
+	return ret;
 
 }
 

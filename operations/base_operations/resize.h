@@ -48,6 +48,7 @@ public:
 	virtual QString typeId() const;
 
 	virtual QString getOpName() const;
+	virtual QString getIconUrl() const;
 
 	virtual QString getPropertiesEditorUrl() const;
 

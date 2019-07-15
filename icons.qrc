@@ -6,5 +6,7 @@
         <file>icons/add_image.svg</file>
         <file>icons/image.svg</file>
         <file>icons/remove_image.svg</file>
+        <file>icons/scale_image.svg</file>
+        <file>icons/save.svg</file>
     </qresource>
 </RCC>

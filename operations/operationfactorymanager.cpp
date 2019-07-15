@@ -27,6 +27,8 @@ QVariant OperationFactoryManager::data(const QModelIndex &index, int role) const
 		return _factories.at(index.row())->getOpName();
 	case Qt::ToolTipRole :
 		return _factories.at(index.row())->getToolTip();
+	case IconPathRole :
+		return _factories.at(index.row())->getIconUrl();
 	case Qt::DecorationRole :
 		return QIcon(_factories.at(index.row())->getIconUrl());
 	case TypeIdRole:
@@ -42,6 +44,7 @@ QHash<int, QByteArray> OperationFactoryManager::roleNames() const {
 	QHash<int, QByteArray> ret = QAbstractListModel::roleNames();
 
 	ret.insert(TypeIdRole, "typeId");
+	ret.insert(IconPathRole, "iconPath");
 
 	return ret;
 

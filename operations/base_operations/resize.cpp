@@ -117,6 +117,10 @@ QString Resize::getOpName() const {
 	return tr("Resize image");
 }
 
+QString Resize::getIconUrl() const {
+	return "qrc:/icons/scale_image.svg";
+}
+
 QString Resize::getPropertiesEditorUrl() const {
 	return "qrc:/qmlcomponents/editors/ResizeOpEditor.qml";
 }

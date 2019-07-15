@@ -50,6 +50,8 @@ SwipeView {
                             z: 2
                             propagateComposedEvents: true
 
+                            hoverEnabled: true
+
                             onClicked: mouse.accepted = false;
                             onPressed: {
                                 availableActionsListView.currentIndex = index
@@ -59,6 +61,13 @@ SwipeView {
                             onDoubleClicked: mouse.accepted = false;
                             onPositionChanged: mouse.accepted = false;
                             onPressAndHold: mouse.accepted = false;
+
+                            ToolTip {
+                                id: actionToolTip
+                                text: toolTip
+
+                                visible: parent.containsMouse && text != ""
+                            }
                         }
 
                         Text {
@@ -68,18 +77,18 @@ SwipeView {
                             color: (index === availableActionsListView.currentIndex) ? "white" : "black"
                         }
 
-                        MouseArea {
-                            id: toolTipArea
-                            anchors.fill: parent
+                        Image {
+                            id: icon
+                            source: iconPath
 
-                            hoverEnabled: true
+                            width: 35
+                            height: 35
 
-                            ToolTip {
-                                id: actionToolTip
-                                text: toolTip
+                            smooth: true
 
-                                visible: parent.containsMouse && text != ""
-                            }
+                            anchors.right: title.left
+                            anchors.rightMargin: 10
+                            anchors.verticalCenter: title.verticalCenter
                         }
 
                     }
@@ -201,6 +210,20 @@ SwipeView {
                                     text: display
                                     anchors.centerIn: parent
                                     color: (index === actionListView.currentIndex) ? "white" : "black"
+                                }
+
+                                Image {
+                                    id: icon
+                                    source: iconPath
+
+                                    width: 35
+                                    height: 35
+
+                                    smooth: true
+
+                                    anchors.left: actionHeader.left
+                                    anchors.leftMargin: 10
+                                    anchors.verticalCenter: actionHeader.verticalCenter
                                 }
 
                             }
