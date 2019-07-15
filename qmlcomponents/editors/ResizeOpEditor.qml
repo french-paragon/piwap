@@ -36,6 +36,9 @@ GridLayout {
 
             resizeOpEditor.operation.pix_x = widthSpinBox.value;
         }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("New image width in pixels (-1 : deduce from aspect ratio)")
     }
 
 
@@ -55,6 +58,9 @@ GridLayout {
 
             resizeOpEditor.operation.pix_y = heightSpinBox.value;
         }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("New image height in pixels (-1 : deduce from aspect ratio)")
     }
 
     Text {
@@ -67,6 +73,9 @@ GridLayout {
         onCurrentTextChanged: {
             operation.fitMode = fitMethodComboBox.currentText
         }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Adjust the new size to keep aspect ratio, or not.")
     }
 
     Text {
@@ -79,6 +88,9 @@ GridLayout {
         onCurrentTextChanged: {
             operation.interpolationMode = interpolationMethodComboBox.currentText
         }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Interpolation method")
     }
 
     onOperationChanged: {
