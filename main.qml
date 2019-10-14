@@ -22,6 +22,26 @@ ApplicationWindow {
             anchors.fill: parent
 
             ToolButton {
+
+                id: saveButton
+                icon.width: 25
+                icon.height: 25
+                icon.source: "qrc:/icons/save.svg"
+                icon.color: "transparent"
+
+                background: Rectangle {
+                    color: backgroundRect.color
+                }
+
+                onClicked: {
+                    actionsFileDialog.open();
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Save operation list")
+            }
+
+            ToolButton {
                 id: addActionButton
                 icon.width: 25
                 icon.height: 25
@@ -166,6 +186,19 @@ ApplicationWindow {
                 piwapp.images.insertImage(loadImageFileDialog.fileUrls[index]);
             }
 
+        }
+    }
+
+    FileDialog {
+        id: actionsFileDialog
+        title: qsTr("Please select an image actions file")
+        folder: shortcuts.home
+        nameFilters: [ "Piwap files (*.pictwarpingops)", "All files (*)" ]
+        selectExisting: false
+
+        onAccepted: {
+            //console.log("You chose: " + actionsFileDialog.fileUrl)
+            piwapp.saveOperations(actionsFileDialog.fileUrl)
         }
     }
 

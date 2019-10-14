@@ -1,6 +1,10 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#define APP_NAME "Piwap"
+#define ORG_NAME "Paragon"
+#define ORG_DOMAIN "famillejospin.ch"
+
 #include <QGuiApplication>
 
 namespace Piwap {
@@ -13,6 +17,8 @@ class Application : public QGuiApplication
 {
 	Q_OBJECT
 public:
+
+	static const QString PROJECT_FILE_EXT;
 
 	Q_PROPERTY(Piwap::OperationFactoryManager* operationFactoryManager READ operationFactoryManager CONSTANT)
 	Q_PROPERTY(Piwap::OperationListManager* operations READ operations CONSTANT)
@@ -38,6 +44,8 @@ public Q_SLOTS:
 	void removeOpFromProject(int id);
 
 	void treatImages();
+
+	void saveOperations(QString outFile);
 
 protected:
 
