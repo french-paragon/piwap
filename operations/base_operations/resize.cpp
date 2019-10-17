@@ -10,11 +10,10 @@ namespace Operations {
 const QString Resize::resizeOpTypeId = "piwapbase/resize";
 
 Resize::Resize(QObject *parent) :
-	AbstractImageOperation(parent),
+	AbstractInterpolatingOperation(parent),
 	_pix_x(800),
 	_pix_y(800),
-	_fit_mode(Bigger),
-	_interpolation_mode(Cubic)
+	_fit_mode(Bigger)
 {
 
 }
@@ -179,29 +178,6 @@ void Resize::setFitMode(QString mode) {
 
 }
 
-QString Resize::interpolationMode() const {
-	return QVariant::fromValue(_interpolation_mode).toString();
-}
-
-void Resize::setInterpolationMode(QString mode) {
-
-	QMetaEnum m_e = QMetaEnum::fromType<Resize::InterpolationMode>();
-
-	int index = m_e.keyToValue(mode.toStdString().c_str());
-
-	if (index == -1) {
-		return;
-	}
-
-	Resize::InterpolationMode f = static_cast<Resize::InterpolationMode>(index);
-
-	if (f != _interpolation_mode) {
-		_interpolation_mode = f;
-		Q_EMIT interpolationModeChanged(interpolationMode());
-		qDebug() << "Changed interpolation mode: " << interpolationMode();
-	}
-}
-
 QStringList Resize::fitModeStrings() const {
 
 	QMetaEnum m_e = QMetaEnum::fromType<Resize::FitMode>();
@@ -216,20 +192,6 @@ QStringList Resize::fitModeStrings() const {
 
 	return ret;
 
-}
-QStringList Resize::interpModeStrings() const {
-
-	QMetaEnum m_e = QMetaEnum::fromType<Resize::InterpolationMode>();
-
-	int n_keys = m_e.keyCount();
-	QStringList ret;
-	ret.reserve(n_keys);
-
-	for (int i = 0; i < n_keys; i++) {
-		ret << QString(m_e.key(i));
-	}
-
-	return ret;
 }
 
 

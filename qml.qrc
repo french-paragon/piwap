@@ -10,5 +10,7 @@
         <file>qmlcomponents/controls/DraggableListItem.qml</file>
         <file>qmlcomponents/controls/DraggableItemDropArea.qml</file>
         <file>PageImages.qml</file>
+        <file>qmlcomponents/editors/FitOpEditor.qml</file>
+        <file>qmlcomponents/controls/ColorSelector.qml</file>
     </qresource>
 </RCC>

@@ -30,7 +30,7 @@ GridLayout {
         from: -1
         to: 99999
         editable: true
-        value: 800
+        value: resizeOpEditor.operation.pix_x
 
         onValueChanged: {
 
@@ -52,7 +52,7 @@ GridLayout {
         from: -1
         to: 99999
         editable: true
-        value: 800
+        value: resizeOpEditor.operation.pix_y
 
         onValueChanged: {
 

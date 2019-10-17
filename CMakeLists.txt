@@ -34,6 +34,8 @@ set(PROG_SRC main.cpp
 			 operations/abstractoperationfactory.cpp
 			 operations/operationfactorymanager.cpp
 			 operations/operationlistmanager.cpp
+                         operations/base_operations/abstractinterpolatingoperation.cpp
+                         operations/base_operations/fit.cpp
 			 operations/base_operations/resize.cpp
 			 operations/base_operations/save.cpp
 			 application/application.cpp

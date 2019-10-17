@@ -3,11 +3,12 @@
 
 #include "operations/abstractimageoperation.h"
 #include "operations/abstractoperationfactory.h"
+#include "operations/base_operations/abstractinterpolatingoperation.h"
 
 namespace Piwap {
 namespace Operations {
 
-class Resize : public AbstractImageOperation
+class Resize : public AbstractInterpolatingOperation
 {
 	Q_OBJECT
 public:
@@ -17,10 +18,8 @@ public:
 	Q_PROPERTY(int pix_x READ pix_x WRITE setPix_x NOTIFY pix_x_changed)
 	Q_PROPERTY(int pix_y READ pix_y WRITE setPix_y NOTIFY pix_y_changed)
 	Q_PROPERTY(QString fitMode READ fitMode WRITE setFitMode NOTIFY fitModeChanged)
-	Q_PROPERTY(QString interpolationMode READ interpolationMode WRITE setInterpolationMode NOTIFY interpolationModeChanged)
 
 	Q_PROPERTY(QStringList possibleFitModes READ fitModeStrings STORED false CONSTANT)
-	Q_PROPERTY(QStringList possibleInterpolationModes READ interpModeStrings STORED false CONSTANT)
 
 	explicit Resize(QObject *parent = nullptr);
 
@@ -32,16 +31,6 @@ public:
 	};
 
 	Q_ENUM(FitMode)
-
-	enum InterpolationMode {
-		Nearest = cv::INTER_NEAREST,
-		Linear = cv::INTER_LINEAR,
-		Area = cv::INTER_AREA,
-		Cubic = cv::INTER_CUBIC,
-		Lanczos = cv::INTER_LANCZOS4
-	};
-
-	Q_ENUM(InterpolationMode)
 
 	virtual int doOperation(cv::Mat & image, ImageInfos * infos) const;
 
@@ -62,18 +51,13 @@ public:
 	QString fitMode() const;
 	void setFitMode(QString mode);
 
-	QString interpolationMode() const;
-	void setInterpolationMode(QString mode);
-
 	QStringList fitModeStrings() const;
-	QStringList interpModeStrings() const;
 
 Q_SIGNALS:
 
 	void pix_x_changed(int newVal);
 	void pix_y_changed(int newVal);
 	void fitModeChanged(QString FitMode);
-	void interpolationModeChanged(QString Mode);
 
 public Q_SLOTS:
 
@@ -82,9 +66,6 @@ protected:
 	int _pix_x;
 	int _pix_y;
 	FitMode _fit_mode;
-	InterpolationMode _interpolation_mode;
-
-
 
 };
 

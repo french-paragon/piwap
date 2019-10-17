@@ -9,6 +9,7 @@
 
 #include "operations/base_operations/resize.h"
 #include "operations/base_operations/save.h"
+#include "operations/base_operations/fit.h"
 
 #include <QUrl>
 #include <QJsonObject>
@@ -234,6 +235,7 @@ void Application::loadOperations(QString inFile) {
 
 void Application::loadOperationsFactories() {
 
+	_operationFactoryManager->insertFactory(new Operations::FitOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::ResizeOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::SaveOpFactory(this));
 
