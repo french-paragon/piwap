@@ -8,5 +8,6 @@
         <file>icons/remove_image.svg</file>
         <file>icons/scale_image.svg</file>
         <file>icons/save.svg</file>
+        <file>icons/fileopen.svg</file>
     </qresource>
 </RCC>

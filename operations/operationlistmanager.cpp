@@ -89,6 +89,22 @@ void OperationListManager::insertOp (AbstractImageOperation* op, int p_row) {
 
 }
 
+void OperationListManager::replaceOps(QList<AbstractImageOperation*> list, bool cleanup) {
+
+	beginResetModel();
+
+	if (cleanup) {
+		for (AbstractImageOperation* op : _operations) {
+			op->deleteLater();
+		}
+	}
+
+	_operations = list;
+
+	endResetModel();
+
+}
+
 AbstractImageOperation* OperationListManager::opAtRow(int row) {
 
 	if (row < 0 || row >= _operations.size()) {
@@ -124,6 +140,11 @@ void OperationListManager::moveAction(int from, int to) {
 	_operations.move(from_row, to_row);
 	endMoveRows();
 
+}
+
+QList<AbstractImageOperation *> OperationListManager::operations() const
+{
+    return _operations;
 }
 
 } // namespace Piwap

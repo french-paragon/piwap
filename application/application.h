@@ -46,6 +46,7 @@ public Q_SLOTS:
 	void treatImages();
 
 	void saveOperations(QString outFile);
+	void loadOperations(QString inFile);
 
 protected:
 

@@ -26,7 +26,11 @@ public:
 	void removeOp (int row);
 	void insertOp (AbstractImageOperation* op, int p_row = -1);
 
+	void replaceOps(QList<AbstractImageOperation*> list, bool cleanup = true);
+
 	Q_INVOKABLE Piwap::AbstractImageOperation* opAtRow(int row);
+
+	QList<AbstractImageOperation *> operations() const;
 
 public Q_SLOTS:
 

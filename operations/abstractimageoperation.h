@@ -35,6 +35,10 @@ public:
 
 	Q_INVOKABLE virtual QString getPropertiesEditorUrl() const = 0;
 
+	virtual QJsonObject asJsonObject() const;
+	virtual void setPropertiesFromJsonObject(QJsonObject const& obj);
+
+
 Q_SIGNALS:
 
 public Q_SLOTS:

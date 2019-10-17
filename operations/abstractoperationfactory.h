@@ -21,6 +21,8 @@ public:
 	virtual QString getOpName() const;
 	virtual QString getToolTip() const;
 
+
+
 Q_SIGNALS:
 
 public Q_SLOTS:

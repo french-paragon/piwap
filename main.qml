@@ -34,11 +34,33 @@ ApplicationWindow {
                 }
 
                 onClicked: {
-                    actionsFileDialog.open();
+                    saveActionsFileDialog.open();
                 }
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Save operation list")
+            }
+
+
+
+            ToolButton {
+
+                id: openButton
+                icon.width: 25
+                icon.height: 25
+                icon.source: "qrc:/icons/fileopen.svg"
+                icon.color: "transparent"
+
+                background: Rectangle {
+                    color: backgroundRect.color
+                }
+
+                onClicked: {
+                    loadActionsFileDialog.open();
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Load operation list")
             }
 
             ToolButton {
@@ -190,7 +212,7 @@ ApplicationWindow {
     }
 
     FileDialog {
-        id: actionsFileDialog
+        id: saveActionsFileDialog
         title: qsTr("Please select an image actions file")
         folder: shortcuts.home
         nameFilters: [ "Piwap files (*.pictwarpingops)", "All files (*)" ]
@@ -198,7 +220,20 @@ ApplicationWindow {
 
         onAccepted: {
             //console.log("You chose: " + actionsFileDialog.fileUrl)
-            piwapp.saveOperations(actionsFileDialog.fileUrl)
+            piwapp.saveOperations(saveActionsFileDialog.fileUrl)
+        }
+    }
+
+    FileDialog {
+        id: loadActionsFileDialog
+        title: qsTr("Please select an image actions file")
+        folder: shortcuts.home
+        nameFilters: [ "Piwap files (*.pictwarpingops)", "All files (*)" ]
+        selectExisting: true
+
+        onAccepted: {
+            //console.log("You chose: " + loadActionsFileDialog.fileUrl)
+            piwapp.loadOperations(loadActionsFileDialog.fileUrl)
         }
     }
 

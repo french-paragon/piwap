@@ -129,31 +129,11 @@ void Application::saveOperations(QString outFile) {
 
 		AbstractImageOperation* op = _operations->opAtRow(i);
 
-		QJsonObject jop;
-
-		const QMetaObject* mobj = op->metaObject();
-
-		for (int i = 0; i < mobj->propertyCount(); i++) {
-
-			if (!mobj->property(i).isStored(op)) {
-				continue;
-			}
-
-			const char* prop = mobj->property(i).name();
-
-			jop.insert(QString(prop), QJsonValue::fromVariant(op->property(prop)));
-		}
-
-		QList<QByteArray> dynamicProperties = op->dynamicPropertyNames();
-
-		for (QByteArray cpropName : dynamicProperties) {
-
-			jop.insert(QString(cpropName), QJsonValue::fromVariant(op->property(cpropName.data())));
-
-		}
+		QJsonObject jop = op->asJsonObject();
 
 		ops.push_back(jop);
 	}
+
 	QJsonDocument doc;
 
 	doc.setArray(ops);
@@ -178,6 +158,77 @@ void Application::saveOperations(QString outFile) {
 		return;
 	}
 
+
+}
+
+void Application::loadOperations(QString inFile) {
+
+	QString fileName = (inFile.startsWith("file:")) ? QUrl(inFile).toLocalFile() : inFile;
+	QFile opsFile(fileName);
+
+	opsFile.open(QIODevice::ReadOnly);
+	QByteArray data = opsFile.readAll();
+	opsFile.close();
+
+	QJsonParseError errors;
+	QJsonDocument doc = QJsonDocument::fromJson(data, &errors);
+
+	if(errors.error != QJsonParseError::NoError){
+		return;
+	}
+
+	if (!doc.isArray()) {
+		return;
+	}
+
+	QJsonArray arr = doc.array();
+
+	QList<AbstractImageOperation*> next;
+	next.reserve(arr.size());
+
+	for (QJsonValue val : arr) {
+
+		if (!val.isObject()) {
+			goto clean_and_return;
+		}
+
+		QJsonObject obj = val.toObject();
+
+		if (!obj.contains("typeId")) {
+			goto clean_and_return;
+		}
+
+		QJsonValue typeId = obj.value("typeId");
+
+		if (!typeId.isString()) {
+			goto clean_and_return;
+		}
+
+		QString tId = typeId.toString();
+
+		AbstractOperationFactory* f = _operationFactoryManager->factoryByType(tId);
+
+		if (f == nullptr) {
+			goto clean_and_return;
+		}
+
+		AbstractImageOperation* o = f->factorizeOperation(_operations);
+
+		next.push_back(o);
+
+	}
+
+	_operations->replaceOps(next);
+
+	return;
+
+	clean_and_return :
+
+	for(AbstractImageOperation* op : next) {
+		op->deleteLater();
+	}
+
+	return;
 
 }
 
