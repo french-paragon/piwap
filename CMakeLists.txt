@@ -17,8 +17,17 @@ set(CMAKE_AUTORCC ON)
 
 #OpenCV
 
-find_package( OpenCV REQUIRED )
-include_directories( ${OpenCV_INCLUDE_DIRS} )
+#find_package( OpenCV REQUIRED )
+#include_directories( ${OpenCV_INCLUDE_DIRS} )
+
+#ImageMagick
+
+find_package(ImageMagick COMPONENTS Magick++ MagickCore)
+include_directories( ${ImageMagick_INCLUDE_DIRS} )
+
+add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=16)
+add_definitions(-DMAGICKCORE_HDRI_ENABLE=0)
+
 
 #libaries
 
@@ -49,4 +58,5 @@ target_link_libraries(${PROG_NAME} Qt5::QuickWidgets)
 target_link_libraries(${PROG_NAME} Qt5::Qml)
 target_link_libraries(${PROG_NAME} Qt5::Svg)
 
-target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )
+#target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )
+target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} )

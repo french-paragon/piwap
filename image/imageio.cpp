@@ -1,15 +1,15 @@
 #include "imageio.h"
 #include "imageinfos.h"
 
-#include <opencv2/opencv.hpp>
+#include <Magick++/Image.h>
 
 namespace Piwap {
 
-ImageInfos* openImage(const char *fileName, cv::Mat & imageDest, QObject *infoParent) {
+ImageInfos* openImage(const char *fileName, Magick::Image & imageDest, QObject *infoParent) {
 
-	imageDest = cv::imread(cv::String(fileName), cv::IMREAD_UNCHANGED);
+	imageDest.read(std::string(fileName));
 
-	if (imageDest.empty()) {
+	if (!imageDest.isValid()) {
 		return nullptr;
 	}
 

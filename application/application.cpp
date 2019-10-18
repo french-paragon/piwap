@@ -19,6 +19,8 @@
 
 #include <QMetaProperty>
 
+#include <Magick++/Image.h>
+
 namespace Piwap {
 
 const QString Application::PROJECT_FILE_EXT = ".pictwarpingops";
@@ -92,11 +94,11 @@ void Application::treatImages() {
 
 		imFile = url.toLocalFile();
 
-		cv::Mat img;
+		Magick::Image img;
 
 		ImageInfos* info = openImage(imFile.toStdString().c_str(), img, this);
 
-		if (img.empty() || info == nullptr) {
+		if (!img.isValid() || info == nullptr) {
 			continue;
 		}
 
@@ -110,7 +112,6 @@ void Application::treatImages() {
 		}
 
 		delete info;
-		img.deallocate();
 
 		_images->removeImage(0);
 

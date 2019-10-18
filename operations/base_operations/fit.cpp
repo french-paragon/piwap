@@ -1,6 +1,7 @@
 #include "fit.h"
 
 #include <QDebug>
+#include <Magick++/Color.h>
 
 namespace Piwap {
 namespace Operations {
@@ -9,14 +10,14 @@ const QString Fit::fitOpTypeId = "piwapbase/fit";
 
 Fit::Fit(QObject *parent) :
 	AbstractInterpolatingOperation(parent),
-	_pix_x(100),
-	_pix_y(100),
+	_pix_x(800),
+	_pix_y(800),
 	_bg(255, 255, 255)
 {
 
 }
 
-int Fit::doOperation(cv::Mat & image, ImageInfos * infos) const {
+int Fit::doOperation(Magick::Image &image, ImageInfos * infos) const {
 
 	Q_UNUSED(infos);
 
@@ -27,7 +28,7 @@ int Fit::doOperation(cv::Mat & image, ImageInfos * infos) const {
 	int newWidth;
 	int newHeight;
 
-	float aspectRatio = static_cast<float>(image.cols) / static_cast<float>(image.rows);
+	float aspectRatio = static_cast<float>(image.size().width()) / static_cast<float>(image.size().height());
 
 	float targetAspectRatio = static_cast<float>(_pix_x) / static_cast<float>(_pix_y);
 
@@ -48,52 +49,27 @@ int Fit::doOperation(cv::Mat & image, ImageInfos * infos) const {
 
 	}
 
-	cv::Scalar bg(_bg.blue(), _bg.green(), _bg.red());
-
-	cv::Mat newIm(newHeight, newWidth, image.type());
-	cv::resize(image, newIm, newIm.size(), 0, 0, _interpolation_mode);
+	image.filterType(static_cast<Magick::FilterTypes>(_interpolation_mode));
+	image.resize(Magick::Geometry(static_cast<size_t>(newWidth), static_cast<size_t>(newHeight)));
 
 	if (newWidth != _pix_x || newHeight != _pix_y) {
-
-		int im_depth = image.depth();
 
 		int r = _bg.red();
 		int g = _bg.green();
 		int b = _bg.blue();
 
-		if (im_depth == CV_16U) {
+		if (MAGICKCORE_QUANTUM_DEPTH == 16) {
 			r <<= 8;
 			g <<= 8;
 			b <<= 8;
 		}
 
-		double rf = _bg.redF();
-		double gf = _bg.greenF();
-		double bf = _bg.blueF();
 
-		cv::Scalar bg;
+		Magick::Color bg(static_cast<Magick::Quantum>(r), static_cast<Magick::Quantum>(g), static_cast<Magick::Quantum>(b));
 
-		if (im_depth == CV_8U || im_depth == CV_16U) {
-			bg = cv::Scalar(b, g, r);
-		} else if (im_depth == CV_32F) {
-			bg = cv::Scalar(bf, gf, rf);
-		}
-
-		cv::Mat bgImg(_pix_y, _pix_x, image.type());
-
-		int top = (_pix_y-newHeight)/2;
-		int bottom = _pix_y-newHeight - top;
-
-		int left = (_pix_x-newWidth)/2;
-		int right = _pix_x-newWidth - left;
-
-		cv::copyMakeBorder(newIm, bgImg, top, bottom, left, right, cv::BORDER_CONSTANT, bg);
-
-		newIm = bgImg;
+		image.extent(Magick::Geometry(static_cast<size_t>(_pix_x), static_cast<size_t>(_pix_y)), bg, Magick::CenterGravity);
 
 	}
-
-	image = newIm;
 
 	return 0;
 

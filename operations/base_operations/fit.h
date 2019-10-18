@@ -23,7 +23,7 @@ public:
 
 	explicit Fit(QObject *parent = nullptr);
 
-	virtual int doOperation(cv::Mat & image, ImageInfos * infos) const;
+	virtual int doOperation(Magick::Image & image, ImageInfos * infos) const;
 
 	virtual QString typeId() const;
 

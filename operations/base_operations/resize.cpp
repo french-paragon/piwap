@@ -18,7 +18,7 @@ Resize::Resize(QObject *parent) :
 
 }
 
-int Resize::doOperation(cv::Mat & image, ImageInfos *infos) const {
+int Resize::doOperation(Magick::Image &image, ImageInfos *infos) const {
 
 	Q_UNUSED(infos);
 
@@ -29,7 +29,7 @@ int Resize::doOperation(cv::Mat & image, ImageInfos *infos) const {
 	int newWidth;
 	int newHeight;
 
-	float aspectRatio = static_cast<float>(image.cols) / static_cast<float>(image.rows);
+	float aspectRatio = static_cast<float>(image.size().width()) / static_cast<float>(image.size().height());
 
 	if (_pix_x > 0 && _pix_y <= 0) {
 
@@ -88,9 +88,10 @@ int Resize::doOperation(cv::Mat & image, ImageInfos *infos) const {
 			// derivative: 2*im.cols*(im.cols*a - _pix_x) + 2*im.rows(im.rows*a - _pix_y) = 0
 			// (im.cols^2 + im.rows^2)*a = im.cols*_pix_x + im.rows*_pix_y
 			// a = (im.cols*_pix_x + im.rows*_pix_y)/(im.cols^2 + im.rows^2)
-			float a = static_cast<float>(image.cols*_pix_x + image.rows*_pix_y) / static_cast<float>(image.cols*image.cols + image.rows*image.rows);
-			newWidth = static_cast<int>(roundf(image.cols*a));
-			newHeight = static_cast<int>(roundf(image.rows*a));
+			float a = static_cast<float>(image.size().width()*static_cast<size_t>(_pix_x) + image.size().height()*static_cast<size_t>(_pix_y)) /
+					static_cast<float>(image.size().width()*image.size().width() + image.size().height()*image.size().height());
+			newWidth = static_cast<int>(roundf(image.size().width()*a));
+			newHeight = static_cast<int>(roundf(image.size().height()*a));
 		}
 			break;
 
@@ -98,11 +99,9 @@ int Resize::doOperation(cv::Mat & image, ImageInfos *infos) const {
 
 	}
 
-	cv::Mat newIm(newHeight, newWidth, image.type());
+	image.filterType(static_cast<Magick::FilterTypes>(_interpolation_mode));
+	image.resize(Magick::Geometry(static_cast<size_t>(newWidth), static_cast<size_t>(newHeight)));
 
-	cv::resize(image, newIm, newIm.size(), 0, 0, _interpolation_mode);
-
-	image = newIm;
 
 	return 0;
 

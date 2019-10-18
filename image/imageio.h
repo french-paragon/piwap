@@ -3,15 +3,15 @@
 
 class QObject;
 
-namespace cv {
-	class Mat;
+namespace Magick {
+	class Image;
 }
 
 namespace Piwap {
 
 class ImageInfos;
 
-ImageInfos* openImage(const char* fileName, cv::Mat & imageDest, QObject *infoParent = nullptr);
+ImageInfos* openImage(const char* fileName, Magick::Image & imageDest, QObject *infoParent = nullptr);
 
 }// namespace Piwap
 

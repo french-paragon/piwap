@@ -13,12 +13,13 @@ public:
 	Q_PROPERTY(QString interpolationMode READ interpolationMode WRITE setInterpolationMode NOTIFY interpolationModeChanged)
 	Q_PROPERTY(QStringList possibleInterpolationModes READ interpModeStrings STORED false CONSTANT)
 
-	enum InterpolationMode {
-		Nearest = cv::INTER_NEAREST,
-		Linear = cv::INTER_LINEAR,
-		Area = cv::INTER_AREA,
-		Cubic = cv::INTER_CUBIC,
-		Lanczos = cv::INTER_LANCZOS4
+	enum InterpolationMode {//those are openCV compatible
+		Nearest = Magick::PointFilter,
+		Linear = Magick::TriangleFilter,
+		Area = Magick::BoxFilter,
+		Cubic = Magick::CatromFilter,
+		Lanczos = Magick::LanczosFilter
+		//TODO: look if we want to add different filters.
 	};
 
 	Q_ENUM(InterpolationMode)

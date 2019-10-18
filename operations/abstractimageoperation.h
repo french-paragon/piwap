@@ -2,7 +2,7 @@
 #define PIWAP_ABSTRACTIMAGEOPERATION_H
 
 #include <QObject>
-#include <opencv2/opencv.hpp>
+#include <Magick++/Image.h>
 
 namespace Piwap {
 
@@ -22,11 +22,11 @@ public:
 	explicit AbstractImageOperation(QObject *parent = nullptr);
 
 	/*!
-	 * \brief doOperation perform the image operation on a cv::Mat
+	 * \brief doOperation perform the image operation on a Magick::Image
 	 * \param image The image the operation is applied onto.
 	 * \return 0 in case of sucess, an int > 0 in case of failure.
 	 */
-	virtual int doOperation(cv::Mat & image, ImageInfos * infos) const = 0;
+	virtual int doOperation(Magick::Image & image, ImageInfos * infos) const = 0;
 
 	virtual QString typeId() const = 0;
 

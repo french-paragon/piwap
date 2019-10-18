@@ -10,7 +10,7 @@ GridLayout {
     property QtObject operation: null
     property int controlsMargin: 5
 
-    id : resizeOpEditor
+    id : fitOpEditor
 
     anchors.left: parent.left
     anchors.right: parent.right
@@ -32,11 +32,13 @@ GridLayout {
         from: 1
         to: 99999
         editable: true
-        value: resizeOpEditor.operation.pix_x
+        value: fitOpEditor.operation.pix_x
 
         onValueChanged: {
 
-            resizeOpEditor.operation.pix_x = widthSpinBox.value;
+            if (fitOpEditor.operation != null) {
+                fitOpEditor.operation.pix_x = widthSpinBox.value;
+            }
         }
 
         ToolTip.visible: hovered
@@ -54,11 +56,13 @@ GridLayout {
         from: 1
         to: 99999
         editable: true
-        value: resizeOpEditor.operation.pix_y
+        value: fitOpEditor.operation.pix_y
 
         onValueChanged: {
 
-            resizeOpEditor.operation.pix_y = heightSpinBox.value;
+            if (fitOpEditor.operation != null) {
+                fitOpEditor.operation.pix_y = heightSpinBox.value;
+            }
         }
 
         ToolTip.visible: hovered
@@ -73,11 +77,11 @@ GridLayout {
     ColorSelector {
         id: colorSelector
 
-        color: resizeOpEditor.operation.bg
+        color: fitOpEditor.operation.bg
         width: heightSpinBox.width
 
         onColorChanged: {
-            resizeOpEditor.operation.bg = colorSelector.color;
+            fitOpEditor.operation.bg = colorSelector.color;
         }
     }
 

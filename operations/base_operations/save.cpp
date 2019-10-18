@@ -4,6 +4,8 @@
 
 #include <QDir>
 
+#include <Magick++.h>
+
 namespace Piwap {
 namespace Operations {
 
@@ -19,7 +21,7 @@ Save::Save(QObject *parent) :
 
 }
 
-int Save::doOperation(cv::Mat & image, ImageInfos * infos) const {
+int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {
 
 	QString outPutFolder = _folderUrl;
 
@@ -76,27 +78,24 @@ int Save::doOperation(cv::Mat & image, ImageInfos * infos) const {
 
 	QString fPath = outPutFolder + fileName + "." + type;
 
-	std::vector<int> qualityParam;
+	size_t compressionParameter = static_cast<size_t>(std::max(0, _compressionParameter));
 
-	if (type.compare("jpg", Qt::CaseInsensitive) == 0 || type.compare("jpeg", Qt::CaseInsensitive) == 0) {
-		if (_compressionParameter >= 0 && _compressionParameter <= 100) {
-			qualityParam.push_back(CV_IMWRITE_JPEG_QUALITY);
-			qualityParam.push_back(_compressionParameter);
-		}
+	if (compressionParameter > 100) {
+		compressionParameter = 100;
 	}
 
-	if (type.compare("png", Qt::CaseInsensitive) == 0) {
-		if (_compressionParameter >= 0 && _compressionParameter <= 100) {
-			qualityParam.push_back(CV_IMWRITE_PNG_COMPRESSION);
-			qualityParam.push_back((_compressionParameter == 100) ? _compressionParameter/10 : 9);
-		}
+	image.quality(compressionParameter);
+
+	try {
+
+		image.write(fPath.toStdString());
+
+	} catch (Magick::Exception & error) {
+		Q_UNUSED(error);
+		return 1;
 	}
 
-	if (cv::imwrite(fPath.toStdString(), image, qualityParam)) {
-		return 0;
-	}
-
-	return 1;
+	return 0;
 
 }
 
