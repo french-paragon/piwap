@@ -7,8 +7,8 @@ import "./qmlcomponents/styles" as PiwapStyles
 
 ApplicationWindow {
     visible: true
-    width: 640
-    height: 480
+    width: 480
+    height: 640
     title: qsTr("Piwap - Pictures Warping App") + piwapp.is_saved ? '' : '*';
 
     header: ToolBar {
