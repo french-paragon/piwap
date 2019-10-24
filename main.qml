@@ -28,7 +28,7 @@ ApplicationWindow {
                 icon.height: 25
                 icon.source: "qrc:/icons/save.svg"
                 icon.color: "transparent"
-                enabled: !piwapp.is_saved
+                enabled: !piwapp.is_saved && actionManagement.actionsCount > 0
                 opacity: (saveButton.enabled) ? 1.0 : 0.5
 
                 background: Rectangle {
@@ -36,12 +36,9 @@ ApplicationWindow {
                 }
 
                 onClicked: {
-                    console.log("click!")
                     if (piwapp.opened_file.length !== 0) {
-                        console.log("'" + piwapp.opened_file + "'")
                         piwapp.saveOperations(piwapp.opened_file);
                     } else {
-                        console.log("clock!")
                         saveActionsFileDialog.open();
                     }
                 }

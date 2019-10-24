@@ -107,10 +107,10 @@ ColumnLayout {
 
                 saveOpEditor.operation.compressionParameter = qualitySpinBox.value;
             }
-        }
 
-        ToolTip.visible: hovered
-        ToolTip.text: qsTr("Image quality or compression (from 0 to 100)")
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Image quality or compression (from 0 to 100)")
+        }
 
     }
 
