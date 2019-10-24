@@ -25,6 +25,7 @@ public:
 	Q_PROPERTY(Piwap::ImageToTreatManager* images READ images CONSTANT)
 
 	Q_PROPERTY(bool is_saved READ getSaveState NOTIFY SaveStateChanged)
+	Q_PROPERTY(QString opened_file READ openedFile NOTIFY openedFileChanged)
 
 	static Application* piwapApp();
 
@@ -39,10 +40,12 @@ public:
 	void init();
 
 	bool getSaveState() const;
+	QString openedFile() const;
 
 Q_SIGNALS:
 
 	void SaveStateChanged(bool saveState);
+	void openedFileChanged(QString file);
 
 public Q_SLOTS:
 
@@ -59,6 +62,8 @@ protected:
 	void markSaved();
 	void markUnsaved();
 
+	void setOpenedFile(QString file);
+
 	void loadOperationsFactories();
 
 	OperationFactoryManager* _operationFactoryManager;
@@ -67,6 +72,7 @@ protected:
 	ImageToTreatManager* _images;
 
 	bool _saveState;
+	QString _openedFile;
 
 };
 

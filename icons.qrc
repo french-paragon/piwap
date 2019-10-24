@@ -9,5 +9,6 @@
         <file>icons/scale_image.svg</file>
         <file>icons/save.svg</file>
         <file>icons/fileopen.svg</file>
+        <file>icons/filesaveas.svg</file>
     </qresource>
 </RCC>

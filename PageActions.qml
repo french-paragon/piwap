@@ -7,6 +7,7 @@ import "qmlcomponents/controls"
 SwipeView {
 
     property alias actionListIndex: actionListView.currentIndex
+    property alias actionsCount: actionListView.count
 
     id: actionManagement
     orientation: Qt.Vertical

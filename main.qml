@@ -28,8 +28,37 @@ ApplicationWindow {
                 icon.height: 25
                 icon.source: "qrc:/icons/save.svg"
                 icon.color: "transparent"
-                enabled: !piwapp.is_saved;
-                opacity: (saveButton.enabled) ? 1.0 : 0.5;
+                enabled: !piwapp.is_saved
+                opacity: (saveButton.enabled) ? 1.0 : 0.5
+
+                background: Rectangle {
+                    color: backgroundRect.color
+                }
+
+                onClicked: {
+                    console.log("click!")
+                    if (piwapp.opened_file.length !== 0) {
+                        console.log("'" + piwapp.opened_file + "'")
+                        piwapp.saveOperations(piwapp.opened_file);
+                    } else {
+                        console.log("clock!")
+                        saveActionsFileDialog.open();
+                    }
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Save operation list")
+            }
+
+            ToolButton {
+
+                id: saveAsButton
+                icon.width: 25
+                icon.height: 25
+                icon.source: "qrc:/icons/filesaveas.svg"
+                icon.color: "transparent"
+                enabled: actionManagement.actionsCount > 0
+                opacity: (saveAsButton.enabled) ? 1.0 : 0.5
 
                 background: Rectangle {
                     color: backgroundRect.color
@@ -40,7 +69,7 @@ ApplicationWindow {
                 }
 
                 ToolTip.visible: hovered
-                ToolTip.text: qsTr("Save operation list")
+                ToolTip.text: qsTr("Save operation list as")
             }
 
 

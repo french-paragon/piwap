@@ -34,7 +34,8 @@ Application* Application::piwapApp() {
 }
 
 Application::Application(int &argc, char **argv) : QGuiApplication(argc, argv),
-	_saveState(true)
+	_saveState(true),
+	_openedFile("")
 {
 	QCoreApplication::setOrganizationName(ORG_NAME);
 	QCoreApplication::setOrganizationDomain(ORG_DOMAIN);
@@ -65,6 +66,9 @@ void Application::init() {
 
 bool Application::getSaveState() const {
 	return _saveState;
+}
+QString Application::openedFile() const {
+	return _openedFile;
 }
 
 void Application::addOpToProject(QString opTypeId) {
@@ -167,6 +171,7 @@ void Application::saveOperations(QString outFile) {
 		return;
 	}
 
+	setOpenedFile(outFile);
 	markSaved();
 
 }
@@ -231,6 +236,7 @@ void Application::loadOperations(QString inFile) {
 
 	_operations->replaceOps(next);
 	markSaved();
+	setOpenedFile(inFile);
 
 	return;
 
@@ -258,6 +264,11 @@ void Application::markUnsaved(){
 		Q_EMIT SaveStateChanged(_saveState);
 	}
 
+}
+
+void Application::setOpenedFile(QString file) {
+	_openedFile = file;
+	Q_EMIT openedFileChanged(file);
 }
 
 void Application::loadOperationsFactories() {
