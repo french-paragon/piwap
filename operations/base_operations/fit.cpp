@@ -1,6 +1,8 @@
 #include "fit.h"
 
 #include <QDebug>
+#include <QJsonObject>
+
 #include <Magick++/Color.h>
 
 namespace Piwap {
@@ -14,7 +16,9 @@ Fit::Fit(QObject *parent) :
 	_pix_y(800),
 	_bg(255, 255, 255)
 {
-
+	connect(this, &Fit::pix_x_changed, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &Fit::pix_y_changed, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &Fit::bg_changed, this, &AbstractImageOperation::hasBeenChanged);
 }
 
 int Fit::doOperation(Magick::Image &image, ImageInfos * infos) const {

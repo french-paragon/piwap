@@ -9,7 +9,7 @@ ApplicationWindow {
     visible: true
     width: 640
     height: 480
-    title: qsTr("Piwap - Pictures Warping App")
+    title: qsTr("Piwap - Pictures Warping App") + piwapp.is_saved ? '' : '*';
 
     header: ToolBar {
 
@@ -28,6 +28,8 @@ ApplicationWindow {
                 icon.height: 25
                 icon.source: "qrc:/icons/save.svg"
                 icon.color: "transparent"
+                enabled: !piwapp.is_saved;
+                opacity: (saveButton.enabled) ? 1.0 : 0.5;
 
                 background: Rectangle {
                     color: backgroundRect.color

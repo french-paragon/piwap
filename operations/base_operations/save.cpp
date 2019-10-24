@@ -19,6 +19,11 @@ Save::Save(QObject *parent) :
 	_compressionParameter(90)
 {
 
+	connect(this, &Save::folderUrlChanged, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &Save::fileNameChanged, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &Save::fileTypeChanged, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &Save::compressionParameterChanged, this, &AbstractImageOperation::hasBeenChanged);
+
 }
 
 int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {

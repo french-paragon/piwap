@@ -38,8 +38,12 @@ public:
 	virtual QJsonObject asJsonObject() const;
 	virtual void setPropertiesFromJsonObject(QJsonObject const& obj);
 
+	virtual bool event(QEvent *e);
+
 
 Q_SIGNALS:
+
+	void hasBeenChanged();
 
 public Q_SLOTS:
 

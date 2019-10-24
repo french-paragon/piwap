@@ -15,7 +15,9 @@ Resize::Resize(QObject *parent) :
 	_pix_y(800),
 	_fit_mode(Bigger)
 {
-
+	connect(this, &Resize::pix_x_changed, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &Resize::pix_y_changed, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &Resize::fitModeChanged, this, &AbstractImageOperation::hasBeenChanged);
 }
 
 int Resize::doOperation(Magick::Image &image, ImageInfos *infos) const {

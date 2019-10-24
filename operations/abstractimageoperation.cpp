@@ -59,5 +59,16 @@ void AbstractImageOperation::setPropertiesFromJsonObject(QJsonObject const& obj)
 
 }
 
+bool AbstractImageOperation::event(QEvent *e) {
+
+	if (e->type() == QEvent::DynamicPropertyChange) {
+		Q_EMIT hasBeenChanged();
+		return true;
+	}
+
+	return QObject::event(e);
+
+}
+
 
 } // namespace Piwap

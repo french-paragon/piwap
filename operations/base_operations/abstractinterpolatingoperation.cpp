@@ -10,7 +10,7 @@ AbstractInterpolatingOperation::AbstractInterpolatingOperation(QObject *parent) 
 	AbstractImageOperation (parent),
 	_interpolation_mode(Cubic)
 {
-
+	connect(this, &AbstractInterpolatingOperation::interpolationModeChanged, this, &AbstractImageOperation::hasBeenChanged);
 }
 
 QString AbstractInterpolatingOperation::interpolationMode() const {

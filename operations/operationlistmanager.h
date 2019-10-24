@@ -32,6 +32,10 @@ public:
 
 	QList<AbstractImageOperation *> operations() const;
 
+Q_SIGNALS:
+
+	void hasBeenChanged();
+
 public Q_SLOTS:
 
 	void moveAction(int from, int to);

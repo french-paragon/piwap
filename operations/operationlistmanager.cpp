@@ -68,6 +68,9 @@ void OperationListManager::removeOp (int p_row) {
 	_operations.removeAt(row);
 	endRemoveRows();
 
+	disconnect(op, &AbstractImageOperation::hasBeenChanged, this, &OperationListManager::hasBeenChanged);
+	Q_EMIT hasBeenChanged();
+
 }
 
 void OperationListManager::insertOp (AbstractImageOperation* op, int p_row) {
@@ -87,6 +90,9 @@ void OperationListManager::insertOp (AbstractImageOperation* op, int p_row) {
 	_operations.insert(row, op);
 	endInsertRows();
 
+	connect(op, &AbstractImageOperation::hasBeenChanged, this, &OperationListManager::hasBeenChanged);
+	Q_EMIT hasBeenChanged();
+
 }
 
 void OperationListManager::replaceOps(QList<AbstractImageOperation*> list, bool cleanup) {
@@ -99,9 +105,19 @@ void OperationListManager::replaceOps(QList<AbstractImageOperation*> list, bool 
 		}
 	}
 
+	for (AbstractImageOperation* op : _operations) {
+		disconnect(op, &AbstractImageOperation::hasBeenChanged, this, &OperationListManager::hasBeenChanged);
+	}
+
 	_operations = list;
 
+	for (AbstractImageOperation* op : _operations) {
+		connect(op, &AbstractImageOperation::hasBeenChanged, this, &OperationListManager::hasBeenChanged);
+	}
+
 	endResetModel();
+
+	Q_EMIT hasBeenChanged();
 
 }
 

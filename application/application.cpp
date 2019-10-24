@@ -33,7 +33,8 @@ Application* Application::piwapApp() {
 
 }
 
-Application::Application(int &argc, char **argv) : QGuiApplication(argc, argv)
+Application::Application(int &argc, char **argv) : QGuiApplication(argc, argv),
+	_saveState(true)
 {
 	QCoreApplication::setOrganizationName(ORG_NAME);
 	QCoreApplication::setOrganizationDomain(ORG_DOMAIN);
@@ -42,6 +43,8 @@ Application::Application(int &argc, char **argv) : QGuiApplication(argc, argv)
 	_operationFactoryManager = new OperationFactoryManager(this);
 	_operations = new OperationListManager(this);
 	_images = new ImageToTreatManager(this);
+
+	connect(_operations, &OperationListManager::hasBeenChanged, this, &Application::markUnsaved);
 }
 
 OperationFactoryManager *Application::operationFactoryManager() const
@@ -58,6 +61,10 @@ void Application::init() {
 
 	loadOperationsFactories();
 
+}
+
+bool Application::getSaveState() const {
+	return _saveState;
 }
 
 void Application::addOpToProject(QString opTypeId) {
@@ -160,6 +167,7 @@ void Application::saveOperations(QString outFile) {
 		return;
 	}
 
+	markSaved();
 
 }
 
@@ -215,12 +223,14 @@ void Application::loadOperations(QString inFile) {
 		}
 
 		AbstractImageOperation* o = f->factorizeOperation(_operations);
+		o->setPropertiesFromJsonObject(obj);
 
 		next.push_back(o);
 
 	}
 
 	_operations->replaceOps(next);
+	markSaved();
 
 	return;
 
@@ -231,6 +241,22 @@ void Application::loadOperations(QString inFile) {
 	}
 
 	return;
+
+}
+void Application::markSaved() {
+
+	if (_saveState == false) {
+		_saveState = true;
+		Q_EMIT SaveStateChanged(_saveState);
+	}
+
+}
+void Application::markUnsaved(){
+
+	if (_saveState == true) {
+		_saveState = false;
+		Q_EMIT SaveStateChanged(_saveState);
+	}
 
 }
 
