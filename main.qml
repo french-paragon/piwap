@@ -9,7 +9,7 @@ ApplicationWindow {
     visible: true
     width: 480
     height: 640
-    title: qsTr("Piwap - Pictures Warping App") + piwapp.is_saved ? '' : '*';
+    title: qsTr("Piwap - Pictures Warping App") + piwapp.is_saved ? '' : '*'
 
     header: ToolBar {
 

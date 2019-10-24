@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
 {
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	Piwap::Application app(argc, argv);
+	app.setWindowIcon(QIcon(":/icons/logo.svg"));
 
 	app.init();
 

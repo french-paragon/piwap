@@ -10,5 +10,6 @@
         <file>icons/save.svg</file>
         <file>icons/fileopen.svg</file>
         <file>icons/filesaveas.svg</file>
+        <file>icons/logo.svg</file>
     </qresource>
 </RCC>
