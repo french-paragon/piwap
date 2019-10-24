@@ -60,3 +60,10 @@ target_link_libraries(${PROG_NAME} Qt5::Svg)
 
 #target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} )
+
+#icons processing
+add_subdirectory(icons)
+
+#install
+install (TARGETS ${PROG_NAME} DESTINATION usr/bin)
+install (FILES desktops/Piwap.desktop DESTINATION usr/share/applications)
