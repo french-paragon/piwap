@@ -55,7 +55,11 @@ SwipeView {
 
                             onClicked: mouse.accepted = false;
                             onPressed: {
-                                availableActionsListView.currentIndex = index
+                                if (index === availableActionsListView.currentIndex) {
+                                    availableActionsListView.currentIndex = -1
+                                } else {
+                                    availableActionsListView.currentIndex = index
+                                }
                                 mouse.accepted = false;
                             }
                             onReleased: mouse.accepted = false;
@@ -185,7 +189,13 @@ SwipeView {
                         }
 
                         onItemClicked: {
-                            actionListView.currentIndex = index
+
+                            if (index === actionListView.currentIndex) {
+                                actionListView.currentIndex = -1
+                            } else {
+                                actionListView.currentIndex = index
+                            }
+
                         }
 
                         Item {
