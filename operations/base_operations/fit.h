@@ -36,8 +36,19 @@ public:
 
 	Q_PROPERTY(int pix_x READ pix_x WRITE setPix_x NOTIFY pix_x_changed)
 	Q_PROPERTY(int pix_y READ pix_y WRITE setPix_y NOTIFY pix_y_changed)
+	Q_PROPERTY(QString expandMode READ expandMode WRITE setExpandMode NOTIFY expandModeChanged)
 
 	Q_PROPERTY(QColor bg READ bg WRITE setBg NOTIFY bg_changed)
+
+	Q_PROPERTY(QStringList possibleExpandModes READ expandModeStrings STORED false CONSTANT)
+
+	enum ExpandMode {
+		None = 0,
+		X = 1,
+		Y = 2
+	};
+
+	Q_ENUM(ExpandMode)
 
 	explicit Fit(QObject *parent = nullptr);
 
@@ -59,12 +70,19 @@ public:
 	QColor bg() const;
 	void setBg(const QColor &bg);
 
+	QString expandMode() const;
+	void setExpandMode(QString mode);
+
+	QStringList expandModeStrings() const;
+
 Q_SIGNALS:
 
 	void pix_x_changed(int pix_x);
 	void pix_y_changed(int pix_y);
 
 	void bg_changed(QColor bg);
+
+	void expandModeChanged(QString newExpandMode);
 
 public Q_SLOTS:
 
@@ -74,6 +92,8 @@ protected:
 	int _pix_y;
 
 	QColor _bg;
+
+	ExpandMode _expand_mode;
 
 };
 

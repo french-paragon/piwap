@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fit.h"
 
 #include <QDebug>
+#include <QMetaEnum>
 #include <QJsonObject>
 
 #include <Magick++/Color.h>
@@ -32,11 +33,13 @@ Fit::Fit(QObject *parent) :
 	AbstractInterpolatingOperation(parent),
 	_pix_x(800),
 	_pix_y(800),
-	_bg(255, 255, 255)
+	_bg(255, 255, 255),
+	_expand_mode(None)
 {
 	connect(this, &Fit::pix_x_changed, this, &AbstractImageOperation::hasBeenChanged);
 	connect(this, &Fit::pix_y_changed, this, &AbstractImageOperation::hasBeenChanged);
 	connect(this, &Fit::bg_changed, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &Fit::expandModeChanged, this, &AbstractImageOperation::hasBeenChanged);
 }
 
 int Fit::doOperation(Magick::Image &image, ImageInfos * infos) const {
@@ -56,13 +59,23 @@ int Fit::doOperation(Magick::Image &image, ImageInfos * infos) const {
 
 	if (aspectRatio > targetAspectRatio) {
 
-		newWidth = _pix_x;
-		newHeight = static_cast<int>(roundf(_pix_x/aspectRatio));
+		if (_expand_mode == X) {
+			newWidth = static_cast<int>(roundf(_pix_y*aspectRatio));
+			newHeight = _pix_y;
+		} else {
+			newWidth = _pix_x;
+			newHeight = static_cast<int>(roundf(_pix_x/aspectRatio));
+		}
 
 	} else if (aspectRatio < targetAspectRatio) {
 
-		newWidth = static_cast<int>(roundf(_pix_y*aspectRatio));
-		newHeight = _pix_y;
+		if (_expand_mode == Y) {
+			newWidth = _pix_x;
+			newHeight = static_cast<int>(roundf(_pix_x/aspectRatio));
+		} else {
+			newWidth = static_cast<int>(roundf(_pix_y*aspectRatio));
+			newHeight = _pix_y;
+		}
 
 	} else {
 
@@ -74,7 +87,7 @@ int Fit::doOperation(Magick::Image &image, ImageInfos * infos) const {
 	image.filterType(static_cast<Magick::FilterTypes>(_interpolation_mode));
 	image.resize(Magick::Geometry(static_cast<size_t>(newWidth), static_cast<size_t>(newHeight)));
 
-	if (newWidth != _pix_x || newHeight != _pix_y) {
+	if (newWidth < _pix_x || newHeight < _pix_y) {
 
 		int r = _bg.red();
 		int g = _bg.green();
@@ -150,6 +163,43 @@ void Fit::setBg(const QColor &bg)
 		_bg = bg;
 		Q_EMIT bg_changed(_bg);
 	}
+}
+
+QString Fit::expandMode() const {
+	return QVariant::fromValue(_expand_mode).toString();
+}
+void Fit::setExpandMode(QString mode) {
+
+	QMetaEnum m_e = QMetaEnum::fromType<Fit::ExpandMode>();
+
+	int index = m_e.keyToValue(mode.toStdString().c_str());
+
+	if (index == -1) {
+		return;
+	}
+
+	Fit::ExpandMode e = static_cast<Fit::ExpandMode>(index);
+
+	if (e != _expand_mode) {
+		_expand_mode = e;
+		Q_EMIT expandModeChanged(expandMode());
+	}
+
+}
+
+QStringList Fit::expandModeStrings() const {
+
+	QMetaEnum m_e = QMetaEnum::fromType<Fit::ExpandMode>();
+
+	int n_keys = m_e.keyCount();
+	QStringList ret;
+	ret.reserve(n_keys);
+
+	for (int i = 0; i < n_keys; i++) {
+		ret << QString(m_e.key(i));
+	}
+
+	return ret;
 }
 
 FitOpFactory::FitOpFactory(QObject * parent) :

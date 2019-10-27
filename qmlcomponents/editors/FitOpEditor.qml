@@ -69,6 +69,36 @@ GridLayout {
         ToolTip.text: qsTr("New image height in pixels")
     }
 
+    Text {
+        text: qsTr("Interpolation method :")
+    }
+
+    ComboBox {
+        id: interpolationMethodComboBox
+
+        onCurrentTextChanged: {
+            operation.interpolationMode = interpolationMethodComboBox.currentText
+        }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Interpolation method")
+    }
+
+    Text {
+        text: qsTr("Allow expand on dimension :")
+    }
+
+    ComboBox {
+        id: expandModeComboBox
+
+        onCurrentTextChanged: {
+            operation.expandMode = expandModeComboBox.currentText
+        }
+
+        ToolTip.visible: hovered
+        ToolTip.text: qsTr("Allow the image to be extended on one axis.")
+    }
+
 
     Text {
         text: qsTr("Background color :")
@@ -82,6 +112,49 @@ GridLayout {
 
         onColorChanged: {
             fitOpEditor.operation.bg = colorSelector.color;
+        }
+    }
+
+    onOperationChanged: {
+
+        widthSpinBox.value = operation.pix_x
+        heightSpinBox.value = operation.pix_y
+
+        var oldInterpolationMode = operation.interpolationMode
+        var oldExpandMode = operation.expandMode
+        var oldColor = operation.bg
+
+        interpolationMethodComboBox.model = operation.possibleInterpolationModes
+        expandModeComboBox.model = operation.possibleExpandModes
+
+        var interpolationModeIndex = interpolationMethodComboBox.find(oldInterpolationMode)
+        if (interpolationModeIndex >= 0) {
+            interpolationMethodComboBox.currentIndex = interpolationModeIndex
+        }
+
+        var expandModeIndex = expandModeComboBox.find(oldInterpolationMode)
+        if (expandModeIndex >= 0) {
+            expandModeComboBox.currentIndex = expandModeIndex
+        }
+    }
+
+    Connections {
+        target: operation
+        onPix_x_changed: {
+            widthSpinBox.value = operation.pix_x
+        }
+        onPix_y_changed: {
+            heightSpinBox.value = operation.pix_y
+        }
+        onBg_changed: {
+            colorSelector.color = operation.bg
+        }
+
+        onInterpolationModeChanged: {
+            var interpolationModeIndex = interpolationMethodComboBox.find(operation.interpolationMode)
+            if (interpolationModeIndex >= 0) {
+                interpolationMethodComboBox.currentIndex = interpolationModeIndex
+            }
         }
     }
 
