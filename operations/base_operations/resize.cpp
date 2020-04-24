@@ -120,7 +120,9 @@ int Resize::doOperation(Magick::Image &image, ImageInfos *infos) const {
 	}
 
 	image.filterType(static_cast<Magick::FilterTypes>(_interpolation_mode));
-	image.resize(Magick::Geometry(static_cast<size_t>(newWidth), static_cast<size_t>(newHeight)));
+	Magick::Geometry newSize(static_cast<size_t>(newWidth), static_cast<size_t>(newHeight));
+	newSize.aspect(true); //we do take care of computing dimensions to keep aspect ratio already (if needed).
+	image.resize(newSize);
 
 
 	return 0;
