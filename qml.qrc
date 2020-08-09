@@ -12,5 +12,6 @@
         <file>PageImages.qml</file>
         <file>qmlcomponents/editors/FitOpEditor.qml</file>
         <file>qmlcomponents/controls/ColorSelector.qml</file>
+        <file>qmlcomponents/controls/HoverableToolButton.qml</file>
     </qresource>
 </RCC>

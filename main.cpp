@@ -37,5 +37,7 @@ int main(int argc, char *argv[])
 	engine.rootContext()->setContextProperty("piwapp", QVariant::fromValue(&app));
 	engine.load(QUrl(QLatin1String("qrc:/main.qml")));
 
+	QObject::connect(&engine, &QQmlApplicationEngine::quit, &app, &QCoreApplication::quit);
+
 	return app.exec();
 }

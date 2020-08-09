@@ -37,6 +37,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <QMetaProperty>
 
+#include <QSettings>
+
 #include <Magick++/Image.h>
 
 namespace Piwap {
@@ -87,6 +89,18 @@ bool Application::getSaveState() const {
 }
 QString Application::openedFile() const {
 	return _openedFile;
+}
+
+
+QStringList Application::recentFiles() const {
+
+	QSettings s;
+	return s.value("recent_files", QVariant::fromValue(QStringList())).toStringList();
+
+}
+
+QString Application::projectFileExt() const {
+	return PROJECT_FILE_EXT;
 }
 
 void Application::addOpToProject(QString opTypeId) {
@@ -148,6 +162,13 @@ void Application::treatImages() {
 
 }
 
+void Application::newOperationsList() {
+
+	_operations->clear();
+	setOpenedFile("");
+	markSaved();
+}
+
 void Application::saveOperations(QString outFile) {
 
 	if (_operations->rowCount() == 0) {
@@ -189,7 +210,7 @@ void Application::saveOperations(QString outFile) {
 		return;
 	}
 
-	setOpenedFile(outFile);
+	setOpenedFile(fileName);
 	markSaved();
 
 }
@@ -254,7 +275,7 @@ void Application::loadOperations(QString inFile) {
 
 	_operations->replaceOps(next);
 	markSaved();
-	setOpenedFile(inFile);
+	setOpenedFile(fileName);
 
 	return;
 
@@ -287,6 +308,40 @@ void Application::markUnsaved(){
 void Application::setOpenedFile(QString file) {
 	_openedFile = file;
 	Q_EMIT openedFileChanged(file);
+
+	if (!file.isEmpty()) {
+		addRecentFile(file);
+	}
+}
+
+void Application::addRecentFile(QString file) {
+	QStringList oldRecentFiles = recentFiles();
+
+	QFileInfo newF(file);
+
+	for(QString f : oldRecentFiles) {
+		QFileInfo oldF(f);
+
+		if (newF == oldF) {
+			return;
+		}
+	}
+
+	QStringList newRecentFiles;
+
+	QSettings s;
+	int max_recent_files = s.value("max_recent_files", 6).toInt();
+
+	newF.makeAbsolute(); //ensure the path is absolute.
+	newRecentFiles << newF.filePath();
+
+	for(int i = 0; i < std::min(oldRecentFiles.size(), max_recent_files); i++) {
+		newRecentFiles << oldRecentFiles[i];
+	}
+
+	s.setValue("recent_files", QVariant::fromValue(newRecentFiles));
+
+	Q_EMIT recentFilesChanged(newRecentFiles);
 }
 
 void Application::loadOperationsFactories() {

@@ -41,6 +41,7 @@ public:
 
 	virtual QHash<int, QByteArray> roleNames() const;
 
+	void clear ();
 	void removeOp (int row);
 	void insertOp (AbstractImageOperation* op, int p_row = -1);
 

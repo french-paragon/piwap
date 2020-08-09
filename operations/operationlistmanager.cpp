@@ -64,6 +64,21 @@ QHash<int, QByteArray> OperationListManager::roleNames() const {
 
 }
 
+void OperationListManager::clear () {
+
+	beginRemoveRows(QModelIndex(), 0, _operations.size()-1);
+
+	for (AbstractImageOperation* op : _operations) {
+		op->deleteLater();
+		disconnect(op, &AbstractImageOperation::hasBeenChanged, this, &OperationListManager::hasBeenChanged);
+	}
+	_operations.clear();
+
+	endRemoveRows();
+
+	Q_EMIT hasBeenChanged();
+}
+
 void OperationListManager::removeOp (int p_row) {
 
 	if (abs(p_row) > _operations.size()) {

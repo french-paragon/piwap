@@ -1,27 +1,194 @@
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.10
 import QtQuick.Layouts 1.0
 import QtQuick.Dialogs 1.0
 
 import "./qmlcomponents/styles" as PiwapStyles
+import "./qmlcomponents/controls"
 
 ApplicationWindow {
+    id: app
     visible: true
     width: 480
     height: 640
     title: qsTr("Piwap - Pictures Warping App") + piwapp.is_saved ? '' : '*'
+
+    function newActionList() {
+        piwapp.newOperationsList();
+    }
+
+    function save() {
+        if (piwapp.opened_file.length !== 0) {
+            piwapp.saveOperations(piwapp.opened_file);
+        } else {
+            saveActionsFileDialog.open();
+        }
+    }
+
+    function saveAs() {
+        saveActionsFileDialog.open();
+    }
+
+    function open() {
+        loadActionsFileDialog.open();
+    }
+
+    function openFile(inFile) {
+        piwapp.loadOperations(inFile)
+    }
 
     header: ToolBar {
 
         background: Rectangle {
             id: backgroundRect
             color: "#999999"
+            implicitWidth: 40
+            implicitHeight: 40
+        }
+
+        Rectangle {
+            color: "#f4a649"
+            width: parent.width
+            height: 3
+            anchors.bottom: parent.bottom
+            z: 99
         }
 
         RowLayout {
             anchors.fill: parent
 
-            ToolButton {
+            HoverableToolButton {
+
+                property bool menuResetFlag: false
+
+                id: fileButton
+                icon.width: 25
+                icon.height: 25
+                icon.source: "qrc:/icons/logo.svg"
+                icon.color: "transparent"
+                text: qsTr("File")
+                autoOpenable: true
+
+                onClicked: {
+                    if (fileButton.isOpen) {
+                        fileMenu.popup(fileButton, 0, fileButton.height);
+                    }
+
+                }
+
+                Menu {
+                    id: fileMenu
+                    title: qsTr("File")
+
+                    Component {
+                        id: recentFileActionTemplate
+
+                        Action {
+                            property string fileUrl: ''
+                            enabled: fileUrl.length > 0
+
+                            onTriggered: {
+                                if (fileUrl.length > 0) {
+                                    app.openFile(fileUrl);
+                                }
+                            }
+                        }
+                    }
+
+                    function populateRecentFiles() {
+
+                        while(openRecentMenu.contentData.length > 0) {
+                            openRecentMenu.removeItem(openRecentMenu.contentData[0]);
+                        }
+
+                        var recentFileList = piwapp.recent_files;
+                        var act;
+
+                        var anyRecentFile = false;
+                        for (var s in recentFileList) {
+                            var fileUrl = recentFileList[s];
+                            var fileName = fileUrl.substring(0, fileUrl.length - piwapp.project_file_ext.length);
+
+                            var id = fileName.lastIndexOf('/');
+
+                            if (id >= 0) {
+                                fileName = fileName.substring(id+1);
+                            }
+
+                            act = recentFileActionTemplate.createObject(openRecentMenu, {fileUrl: fileUrl, text: fileName});
+
+                            if (act !== null) {
+                                openRecentMenu.addAction(act);
+                                anyRecentFile = true;
+                            }
+                        }
+
+                        if (!anyRecentFile) {
+                            act = recentFileActionTemplate.createObject(openRecentMenu, {fileUrl: '', text: qsTr("No recent files...")});
+                            openRecentMenu.addAction(act);
+                        }
+
+                    }
+
+                    Action {
+                        text: qsTr("&New...")
+
+                        onTriggered: {
+                            app.newActionList();
+                        }
+                    }
+                    Action {
+                        text: qsTr("&Open...")
+
+                        onTriggered: {
+                            app.open();
+                        }
+                    }
+                    Action {
+                        text: qsTr("&Save")
+                        enabled: !piwapp.is_saved && actionManagement.actionsCount > 0
+
+                        onTriggered: {
+                            app.save();
+                        }
+                    }
+                    Action {
+                        text: qsTr("Save &As...")
+                        enabled: !piwapp.is_saved && actionManagement.actionsCount > 0
+
+                        onTriggered: {
+                            app.saveAs();
+                        }
+                    }
+                    MenuSeparator { }
+
+                    Menu {
+                        id: openRecentMenu
+                        title: qsTr("&Open recent...")
+                    }
+
+                    MenuSeparator { }
+                    Action {
+                        text: qsTr("&Quit")
+
+                        onTriggered: {
+                            Qt.quit();
+                        }
+                    }
+
+                    onClosed: {
+                        if(!fileButton.containMouse) {
+                            fileButton.isOpen = false;
+                        }
+                    }
+
+                    onAboutToShow: {
+                        fileMenu.populateRecentFiles();
+                    }
+                 }
+            }
+
+            HoverableToolButton {
 
                 id: saveButton
                 icon.width: 25
@@ -31,23 +198,15 @@ ApplicationWindow {
                 enabled: !piwapp.is_saved && actionManagement.actionsCount > 0
                 opacity: (saveButton.enabled) ? 1.0 : 0.5
 
-                background: Rectangle {
-                    color: backgroundRect.color
-                }
-
                 onClicked: {
-                    if (piwapp.opened_file.length !== 0) {
-                        piwapp.saveOperations(piwapp.opened_file);
-                    } else {
-                        saveActionsFileDialog.open();
-                    }
+                    app.save();
                 }
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Save operation list")
             }
 
-            ToolButton {
+            HoverableToolButton {
 
                 id: saveAsButton
                 icon.width: 25
@@ -57,12 +216,8 @@ ApplicationWindow {
                 enabled: actionManagement.actionsCount > 0
                 opacity: (saveAsButton.enabled) ? 1.0 : 0.5
 
-                background: Rectangle {
-                    color: backgroundRect.color
-                }
-
                 onClicked: {
-                    saveActionsFileDialog.open();
+                    app.saveAs();
                 }
 
                 ToolTip.visible: hovered
@@ -71,7 +226,7 @@ ApplicationWindow {
 
 
 
-            ToolButton {
+            HoverableToolButton {
 
                 id: openButton
                 icon.width: 25
@@ -79,48 +234,54 @@ ApplicationWindow {
                 icon.source: "qrc:/icons/fileopen.svg"
                 icon.color: "transparent"
 
-                background: Rectangle {
-                    color: backgroundRect.color
-                }
-
                 onClicked: {
-                    loadActionsFileDialog.open();
+                    app.open();
                 }
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Load operation list")
             }
 
-            ToolButton {
+            HoverableToolButton {
                 id: addActionButton
                 icon.width: 25
                 icon.height: 25
                 icon.source: "qrc:/icons/add_operation.svg"
                 icon.color: "transparent"
-
-                background: Rectangle {
-                    color: backgroundRect.color
-                }
+                autoOpenable: true
 
                 onClicked: {
-                    swipeView.setCurrentIndex(0);
-                    actionManagement.currentIndex = 0;
+                    if (addActionButton.isOpen) {
+                        swipeView.setCurrentIndex(0);
+                        actionManagement.currentIndex = 0;
+                    } else {
+                        actionManagement.currentIndex = 1;
+                    }
+                }
+
+                Connections {
+                    target: swipeView
+                    onCurrentIndexChanged : {
+                        if (swipeView.currentIndex == 1) {
+                            addActionButton.isOpen = false;
+                            actionManagement.currentIndex = 1;
+                        } else {
+                            addActionButton.isOpenable = true;
+                        }
+                    }
                 }
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Add an operation to the queue")
             }
 
-            ToolButton {
+            HoverableToolButton {
                 id: removeActionButton
                 icon.width: 25
                 icon.height: 25
                 icon.source: "qrc:/icons/remove_operation.svg"
                 icon.color: "transparent"
-
-                background: Rectangle {
-                    color: backgroundRect.color
-                }
+                enabled: swipeView.currentIndex == 0 && actionManagement.currentIndex == 1
 
                 onClicked: {
                     if (swipeView.currentIndex == 0) {
@@ -140,16 +301,12 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
-            ToolButton {
+            HoverableToolButton {
                 id: addImageButton
                 icon.width: 25
                 icon.height: 25
                 icon.source: "qrc:/icons/add_image.svg"
                 icon.color: "transparent"
-
-                background: Rectangle {
-                    color: backgroundRect.color
-                }
 
                 onClicked: {
                     swipeView.setCurrentIndex(1);
@@ -160,16 +317,12 @@ ApplicationWindow {
                 ToolTip.text: qsTr("Add an image to the queue")
             }
 
-            ToolButton {
+            HoverableToolButton {
                 id: removeImageButton
                 icon.width: 25
                 icon.height: 25
                 icon.source: "qrc:/icons/remove_image.svg"
                 icon.color: "transparent"
-
-                background: Rectangle {
-                    color: backgroundRect.color
-                }
 
                 onClicked: {
                     if (swipeView.currentIndex === 1) {
@@ -261,7 +414,7 @@ ApplicationWindow {
 
         onAccepted: {
             //console.log("You chose: " + loadActionsFileDialog.fileUrl)
-            piwapp.loadOperations(loadActionsFileDialog.fileUrl)
+            app.openFile(loadActionsFileDialog.fileUrl)
         }
     }
 

@@ -42,8 +42,11 @@ public:
 	Q_PROPERTY(Piwap::OperationListManager* operations READ operations CONSTANT)
 	Q_PROPERTY(Piwap::ImageToTreatManager* images READ images CONSTANT)
 
+	Q_PROPERTY(QString project_file_ext READ projectFileExt CONSTANT)
+
 	Q_PROPERTY(bool is_saved READ getSaveState NOTIFY SaveStateChanged)
 	Q_PROPERTY(QString opened_file READ openedFile NOTIFY openedFileChanged)
+	Q_PROPERTY(QStringList recent_files READ recentFiles NOTIFY recentFilesChanged)
 
 	static Application* piwapApp();
 
@@ -60,10 +63,15 @@ public:
 	bool getSaveState() const;
 	QString openedFile() const;
 
+	QStringList recentFiles() const;
+
+	QString projectFileExt() const;
+
 Q_SIGNALS:
 
 	void SaveStateChanged(bool saveState);
 	void openedFileChanged(QString file);
+	void recentFilesChanged(QStringList files);
 
 public Q_SLOTS:
 
@@ -72,6 +80,7 @@ public Q_SLOTS:
 
 	void treatImages();
 
+	void newOperationsList();
 	void saveOperations(QString outFile);
 	void loadOperations(QString inFile);
 
@@ -81,6 +90,7 @@ protected:
 	void markUnsaved();
 
 	void setOpenedFile(QString file);
+	void addRecentFile(QString file);
 
 	void loadOperationsFactories();
 
