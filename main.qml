@@ -9,7 +9,7 @@ import "./qmlcomponents/controls"
 ApplicationWindow {
     id: app
     visible: true
-    width: 480
+    width: 560
     height: 640
     title: qsTr("Piwap - Pictures Warping App") + piwapp.is_saved ? '' : '*'
 
@@ -39,11 +39,14 @@ ApplicationWindow {
 
     header: ToolBar {
 
+        property int icons_size: 30
+        id: toolBar
+
         background: Rectangle {
             id: backgroundRect
             color: "#999999"
             implicitWidth: 40
-            implicitHeight: 40
+            implicitHeight: toolBar.icons_size + 15
         }
 
         Rectangle {
@@ -62,8 +65,8 @@ ApplicationWindow {
                 property bool menuResetFlag: false
 
                 id: fileButton
-                icon.width: 25
-                icon.height: 25
+                icon.width: toolBar.icons_size
+                icon.height: toolBar.icons_size
                 icon.source: "qrc:/icons/logo.svg"
                 icon.color: "transparent"
                 text: qsTr("File")
@@ -191,8 +194,8 @@ ApplicationWindow {
             HoverableToolButton {
 
                 id: saveButton
-                icon.width: 25
-                icon.height: 25
+                icon.width: toolBar.icons_size
+                icon.height: toolBar.icons_size
                 icon.source: "qrc:/icons/save.svg"
                 icon.color: "transparent"
                 enabled: !piwapp.is_saved && actionManagement.actionsCount > 0
@@ -209,8 +212,8 @@ ApplicationWindow {
             HoverableToolButton {
 
                 id: saveAsButton
-                icon.width: 25
-                icon.height: 25
+                icon.width: toolBar.icons_size
+                icon.height: toolBar.icons_size
                 icon.source: "qrc:/icons/filesaveas.svg"
                 icon.color: "transparent"
                 enabled: actionManagement.actionsCount > 0
@@ -229,8 +232,8 @@ ApplicationWindow {
             HoverableToolButton {
 
                 id: openButton
-                icon.width: 25
-                icon.height: 25
+                icon.width: toolBar.icons_size
+                icon.height: toolBar.icons_size
                 icon.source: "qrc:/icons/fileopen.svg"
                 icon.color: "transparent"
 
@@ -244,8 +247,8 @@ ApplicationWindow {
 
             HoverableToolButton {
                 id: addActionButton
-                icon.width: 25
-                icon.height: 25
+                icon.width: toolBar.icons_size
+                icon.height: toolBar.icons_size
                 icon.source: "qrc:/icons/add_operation.svg"
                 icon.color: "transparent"
                 autoOpenable: true
@@ -266,7 +269,16 @@ ApplicationWindow {
                             addActionButton.isOpen = false;
                             actionManagement.currentIndex = 1;
                         } else {
-                            addActionButton.isOpenable = true;
+                            addActionButton.autoOpenable = true;
+                        }
+                    }
+                }
+
+                Connections {
+                    target: actionManagement
+                    onCurrentIndexChanged : {
+                        if (actionManagement.currentIndex == 1) {
+                            addActionButton.isOpen = false;
                         }
                     }
                 }
@@ -277,11 +289,12 @@ ApplicationWindow {
 
             HoverableToolButton {
                 id: removeActionButton
-                icon.width: 25
-                icon.height: 25
+                icon.width: toolBar.icons_size
+                icon.height: toolBar.icons_size
                 icon.source: "qrc:/icons/remove_operation.svg"
                 icon.color: "transparent"
                 enabled: swipeView.currentIndex == 0 && actionManagement.currentIndex == 1
+                opacity: (removeActionButton.enabled) ? 1.0 : 0.5
 
                 onClicked: {
                     if (swipeView.currentIndex == 0) {
@@ -303,8 +316,8 @@ ApplicationWindow {
 
             HoverableToolButton {
                 id: addImageButton
-                icon.width: 25
-                icon.height: 25
+                icon.width: toolBar.icons_size
+                icon.height: toolBar.icons_size
                 icon.source: "qrc:/icons/add_image.svg"
                 icon.color: "transparent"
 
@@ -319,10 +332,12 @@ ApplicationWindow {
 
             HoverableToolButton {
                 id: removeImageButton
-                icon.width: 25
-                icon.height: 25
+                icon.width: toolBar.icons_size
+                icon.height: toolBar.icons_size
                 icon.source: "qrc:/icons/remove_image.svg"
                 icon.color: "transparent"
+                enabled: swipeView.currentIndex == 1
+                opacity: (removeImageButton.enabled) ? 1.0 : 0.5
 
                 onClicked: {
                     if (swipeView.currentIndex === 1) {
@@ -332,6 +347,23 @@ ApplicationWindow {
 
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Remove selected image from the queue")
+            }
+
+            HoverableToolButton {
+                id: runActionsButton
+                icon.width: toolBar.icons_size
+                icon.height: toolBar.icons_size
+                icon.source: "qrc:/icons/run_operations.svg"
+                icon.color: "transparent"
+                enabled: imageManagement.imageCount > 0
+                opacity: (runActionsButton.enabled) ? 1.0 : 0.5
+
+                onClicked: {
+                    piwapp.treatImages()
+                }
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Treat images in the queue")
             }
 
         }
@@ -372,8 +404,6 @@ ApplicationWindow {
             for (var i in drop.urls) {
                 piwapp.images.insertImage(drop.urls[i]);
             }
-
-            swipeView.setCurrentIndex(1);
         }
     }
 
@@ -436,7 +466,7 @@ ApplicationWindow {
         }
 
         TabButton {
-            text: qsTr("Images")
+            text: qsTr("Images") + ((imageManagement.imageCount > 0) ? "(" + imageManagement.imageCount + ")" : "")
             background: PiwapStyles.PiwapTabButtonStyle {
 
             }

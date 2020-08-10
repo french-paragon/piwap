@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.0
 Page {
 
     property alias imageListIndex: imageListView.currentIndex
+    property alias imageCount: imageListView.count
 
     id: root
 
@@ -88,6 +89,7 @@ Page {
 
         Item {
             Layout.fillWidth: true
+            visible: false
 
             height: 70
 
