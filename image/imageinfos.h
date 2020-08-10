@@ -31,6 +31,7 @@ public:
 	explicit ImageInfos(QString originalFileUrl, QObject *parent = nullptr);
 
 	QString originalFileName() const;
+	QString originalFilePath() const;
 
 	QString originalFolderUrl() const;
 

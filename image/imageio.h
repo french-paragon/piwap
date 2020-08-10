@@ -30,6 +30,7 @@ namespace Piwap {
 class ImageInfos;
 
 ImageInfos* openImage(const char* fileName, Magick::Image & imageDest, QObject *infoParent = nullptr);
+int reloadImage(Magick::Image & imageDest, ImageInfos* infos);
 
 }// namespace Piwap
 

@@ -11,5 +11,7 @@
         <file>icons/fileopen.svg</file>
         <file>icons/filesaveas.svg</file>
         <file>icons/logo.svg</file>
+        <file>icons/run_operations.svg</file>
+        <file>icons/reload.svg</file>
     </qresource>
 </RCC>

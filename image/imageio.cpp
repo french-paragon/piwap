@@ -37,5 +37,17 @@ ImageInfos* openImage(const char *fileName, Magick::Image & imageDest, QObject *
 
 }
 
+int reloadImage(Magick::Image & imageDest, ImageInfos* infos) {
+
+	imageDest.read(infos->originalFilePath().toStdString());
+
+	if (imageDest.isValid()) {
+		return 0;
+	}
+
+	return 1;
+
+}
+
 
 }// namespace Piwap

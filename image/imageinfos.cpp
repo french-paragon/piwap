@@ -34,6 +34,9 @@ QString ImageInfos::originalFileName() const
 {
 	return _infos.baseName();
 }
+QString ImageInfos::originalFilePath() const {
+	return _infos.absoluteFilePath();
+}
 
 QString ImageInfos::originalFolderUrl() const
 {

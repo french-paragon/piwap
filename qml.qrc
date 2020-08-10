@@ -13,5 +13,6 @@
         <file>qmlcomponents/editors/FitOpEditor.qml</file>
         <file>qmlcomponents/controls/ColorSelector.qml</file>
         <file>qmlcomponents/controls/HoverableToolButton.qml</file>
+        <file>qmlcomponents/editors/ReloadOpEditor.qml</file>
     </qresource>
 </RCC>

@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "operations/base_operations/resize.h"
 #include "operations/base_operations/save.h"
 #include "operations/base_operations/fit.h"
+#include "operations/base_operations/reload.h"
 
 #include <QUrl>
 #include <QJsonObject>
@@ -348,6 +349,7 @@ void Application::loadOperationsFactories() {
 
 	_operationFactoryManager->insertFactory(new Operations::FitOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::ResizeOpFactory(this));
+	_operationFactoryManager->insertFactory(new Operations::ReloadOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::SaveOpFactory(this));
 
 }
