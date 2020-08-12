@@ -37,6 +37,8 @@ public:
 
 	QString originalImageType() const;
 
+	void copyInfosFromOther(ImageInfos const& other);
+
 Q_SIGNALS:
 
 public Q_SLOTS:

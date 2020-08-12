@@ -48,4 +48,8 @@ QString ImageInfos::originalImageType() const
 	return _infos.completeSuffix();
 }
 
+void ImageInfos::copyInfosFromOther(ImageInfos const& other) {
+	_infos = other._infos;
+}
+
 } // namespace Piwap

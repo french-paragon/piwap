@@ -14,5 +14,6 @@
         <file>qmlcomponents/controls/ColorSelector.qml</file>
         <file>qmlcomponents/controls/HoverableToolButton.qml</file>
         <file>qmlcomponents/editors/ReloadOpEditor.qml</file>
+        <file>qmlcomponents/editors/CheckpointOpEditor.qml</file>
     </qresource>
 </RCC>

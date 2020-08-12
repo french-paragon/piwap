@@ -157,7 +157,7 @@ ApplicationWindow {
                     }
                     Action {
                         text: qsTr("Save &As...")
-                        enabled: !piwapp.is_saved && actionManagement.actionsCount > 0
+                        enabled: actionManagement.actionsCount > 0
 
                         onTriggered: {
                             app.saveAs();

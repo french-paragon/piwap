@@ -63,6 +63,7 @@ public Q_SLOTS:
 private:
 
 	QAbstractItemModel* _p_checkpoints;
+	QString _checkpoint;
 
 };
 

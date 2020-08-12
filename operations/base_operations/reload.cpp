@@ -19,6 +19,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "reload.h"
 
 #include "image/imageio.h"
+#include "application/application.h"
+#include "operations/operationlistmanager.h"
+#include "operations/base_operations/checkpoint.h"
 
 #include <QAbstractListModel>
 
@@ -32,11 +35,57 @@ public:
 		QAbstractListModel(parent),
 		_cache()
 	{
+		rebuildCache();
 
+		Application* app = Application::piwapApp();
+		connect(app->operations(), &OperationListManager::hasBeenChanged, this, &reloadCheckPointModel::rebuildCache);
 	}
 
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+	void rebuildCache() {
+		Reload* p = qobject_cast<Reload*>(parent());
+
+		Application* app = Application::piwapApp();
+
+		beginResetModel();
+
+		if (app != nullptr) {
+			OperationListManager* opm = app->operations();
+
+			int n = 0;
+			QStringList cache_tmp;
+			for (int i = 0; i < opm->rowCount(); i++) {
+
+				AbstractImageOperation* op = opm->opAtRow(i);
+
+				Checkpoint* ckp = qobject_cast<Checkpoint*>(op);
+
+				if (ckp != nullptr) {
+					cache_tmp << (QVariant::fromValue(++n).toString() + ". " + ((ckp->name().size() > 0) ? ckp->name() : "(no name)"));
+				} else {
+					Reload* r = qobject_cast<Reload*>(op);
+
+					if (r != nullptr) {
+						if (r == p) {
+							_cache = cache_tmp;
+							endResetModel();
+							return;
+						}
+					}
+				}
+
+			}
+
+			_cache = cache_tmp;
+			endResetModel();
+			return;
+		}
+
+		_cache.clear();
+		endResetModel();
+	}
 
 	QStringList _cache;
 
@@ -76,6 +125,44 @@ Reload::Reload(QObject *parent) : AbstractImageOperation(parent)
 }
 
 int Reload::doOperation(Magick::Image & image, ImageInfos * infos) const {
+
+	if (!_checkpoint.isEmpty()) {
+
+		int p_pos = _checkpoint.indexOf('.');
+
+		if (p_pos >= 0) {
+
+			bool ok;
+			int checkpointIndex = QVariant(_checkpoint.mid(0, p_pos)).toInt(&ok);
+
+			if (!ok) {
+				return 1;
+			}
+
+			Application* app = Application::piwapApp();
+
+			int c = 0;
+
+			for(int i = 0; i < app->operations()->rowCount(); i++) {
+
+				Checkpoint* ckp = qobject_cast<Checkpoint*>(app->operations()->opAtRow(i));
+
+				if (ckp != nullptr) {
+					c++;
+					if (c == checkpointIndex) {
+						return ckp->restoreCheckpoint(image, infos);
+					}
+				}
+
+			}
+
+			return 1;
+
+		} else {
+			return 1;
+		}
+
+	}
 
 	return reloadImage(image, infos);
 

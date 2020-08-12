@@ -13,5 +13,6 @@
         <file>icons/logo.svg</file>
         <file>icons/run_operations.svg</file>
         <file>icons/reload.svg</file>
+        <file>icons/checkpoint.svg</file>
     </qresource>
 </RCC>
