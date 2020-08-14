@@ -144,6 +144,8 @@ void Application::treatImages() {
 		ImageInfos* info = openImage(imFile.toStdString().c_str(), img, this);
 
 		if (!img.isValid() || info == nullptr) {
+			//TODO: add error message.
+			_images->removeImage(0);
 			continue;
 		}
 
