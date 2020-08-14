@@ -28,6 +28,12 @@ include_directories( ${ImageMagick_INCLUDE_DIRS} )
 add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=16)
 add_definitions(-DMAGICKCORE_HDRI_ENABLE=0)
 
+find_library(LZIP zip)
+
+if(NOT LZIP)
+  message(FATAL_ERROR "libzip library not found")
+endif()
+
 
 #libaries
 
@@ -59,6 +65,7 @@ target_link_libraries(${PROG_NAME} Qt5::Core)
 target_link_libraries(${PROG_NAME} Qt5::QuickWidgets)
 target_link_libraries(${PROG_NAME} Qt5::Qml)
 target_link_libraries(${PROG_NAME} Qt5::Svg)
+target_link_libraries(${PROG_NAME} ${LZIP})
 
 #target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} )
