@@ -30,6 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "operations/base_operations/fit.h"
 #include "operations/base_operations/reload.h"
 #include "operations/base_operations/checkpoint.h"
+#include "operations/base_operations/backgroundcolor.h"
 
 #include <QUrl>
 #include <QJsonObject>
@@ -350,6 +351,7 @@ void Application::addRecentFile(QString file) {
 
 void Application::loadOperationsFactories() {
 
+	_operationFactoryManager->insertFactory(new Operations::BackgroundOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::FitOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::ResizeOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::CheckpointOpFactory(this));

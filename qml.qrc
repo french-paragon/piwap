@@ -15,5 +15,6 @@
         <file>qmlcomponents/controls/HoverableToolButton.qml</file>
         <file>qmlcomponents/editors/ReloadOpEditor.qml</file>
         <file>qmlcomponents/editors/CheckpointOpEditor.qml</file>
+        <file>qmlcomponents/editors/BackgroundOpEditor.qml</file>
     </qresource>
 </RCC>
