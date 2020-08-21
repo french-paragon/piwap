@@ -360,6 +360,10 @@ ApplicationWindow {
 
                 onClicked: {
                     piwapp.treatImages()
+                    if (imageManagement.errorCount > 0) {
+                        swipeView.currentIndex = 1
+                        imageManagement.setErrorDisplay();
+                    }
                 }
 
                 ToolTip.visible: hovered
@@ -383,6 +387,17 @@ ApplicationWindow {
 
             onImageProcesingTriggered : {
                 piwapp.treatImages()
+            }
+
+            onErrorDisplayClosed: {
+                actionManagement.currentIndex = 1;
+                swipeView.currentIndex = 0;
+            }
+        }
+
+        onCurrentIndexChanged: {
+            if (currentIndex == 0) {
+                imageManagement.resetErrorDisplay();
             }
         }
     }

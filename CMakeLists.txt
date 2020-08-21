@@ -54,6 +54,7 @@ set(PROG_SRC main.cpp
 						 operations/base_operations/reload.cpp
 						 operations/base_operations/checkpoint.cpp
 						 operations/base_operations/backgroundcolor.cpp
+						 operations/operationerror.cpp
 			 operations/base_operations/resize.cpp
 			 operations/base_operations/save.cpp
 			 application/application.cpp

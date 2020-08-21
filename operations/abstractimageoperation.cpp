@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "abstractimageoperation.h"
+#include "operationerror.h"
 
 #include <QtQml>
 
@@ -24,9 +25,15 @@ namespace Piwap {
 
 const int AbstractImageOperation::registrationCodes = qRegisterMetaType<Piwap::AbstractImageOperation*>("Piwap::AbstractImageOperation*");
 
-AbstractImageOperation::AbstractImageOperation(QObject *parent) : QObject(parent)
+AbstractImageOperation::AbstractImageOperation(QObject *parent) :
+	QObject(parent),
+	_error(nullptr)
 {
 
+}
+
+AbstractImageOperation::~AbstractImageOperation() {
+	clearError();
 }
 
 QString AbstractImageOperation::getIconUrl() const {
@@ -88,5 +95,40 @@ bool AbstractImageOperation::event(QEvent *e) {
 
 }
 
+const OperationErrorInfos AbstractImageOperation::invalidError;
+
+const OperationErrorInfos &AbstractImageOperation::getError() const {
+
+	if (_error == nullptr) {
+		return invalidError;
+	}
+
+	return *_error;
+}
+bool AbstractImageOperation::hasError() const {
+	return
+			_error != nullptr;
+}
+void AbstractImageOperation::clearError() {
+
+	if (_error != nullptr) {
+		delete _error;
+	}
+	_error = nullptr;
+}
+
+void AbstractImageOperation::setError(QString imFile, QString infos) const {
+
+	clearError();
+	_error = new OperationErrorInfos(imFile, infos, this);
+}
+
+void AbstractImageOperation::clearError() const {
+
+	if (_error != nullptr) {
+		delete _error;
+	}
+	_error = nullptr;
+}
 
 } // namespace Piwap

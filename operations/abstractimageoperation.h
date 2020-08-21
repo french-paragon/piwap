@@ -22,6 +22,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <QObject>
 #include <Magick++/Image.h>
 
+#include "operations/operationerror.h"
+
 namespace Piwap {
 
 class ImageInfos;
@@ -30,6 +32,7 @@ class AbstractImageOperation : public QObject
 {
 	Q_OBJECT
 public:
+
 	Q_PROPERTY(QString typeId READ typeId CONSTANT)
 
 	Q_PROPERTY(QString iconUrl READ getIconUrl STORED false CONSTANT)
@@ -38,6 +41,7 @@ public:
 	Q_PROPERTY(QString propertiesEditorUrl READ getPropertiesEditorUrl STORED false CONSTANT)
 
 	explicit AbstractImageOperation(QObject *parent = nullptr);
+	virtual ~AbstractImageOperation();
 
 	/*!
 	 * \brief doOperation perform the image operation on a Magick::Image
@@ -58,6 +62,9 @@ public:
 
 	virtual bool event(QEvent *e);
 
+	const OperationErrorInfos& getError() const;
+	bool hasError() const;
+	void clearError();
 
 Q_SIGNALS:
 
@@ -67,6 +74,12 @@ public Q_SLOTS:
 
 protected:
 
+	static const OperationErrorInfos invalidError;
+
+	void setError(QString imFile, QString infos) const;
+	void clearError() const;
+
+	mutable OperationErrorInfos* _error;
 	static const int registrationCodes;
 };
 

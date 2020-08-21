@@ -115,6 +115,7 @@ int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {
 
 	} catch (Magick::Exception & error) {
 		Q_UNUSED(error);
+		setError(infos->originalFilePath(), tr("Unable to save to %1").arg(fPath));
 		return 1;
 	}
 

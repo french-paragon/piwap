@@ -15,5 +15,6 @@
         <file>icons/reload.svg</file>
         <file>icons/checkpoint.svg</file>
         <file>icons/color_bg.svg</file>
+        <file>icons/warning.svg</file>
     </qresource>
 </RCC>

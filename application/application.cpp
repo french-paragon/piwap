@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "operations/operationfactorymanager.h"
 #include "operations/operationlistmanager.h"
+#include "operations/operationerror.h"
 
 #include "image/imagetotreatmanager.h"
 #include "image/imageio.h"
@@ -67,6 +68,7 @@ Application::Application(int &argc, char **argv) : QGuiApplication(argc, argv),
 	_operationFactoryManager = new OperationFactoryManager(this);
 	_operations = new OperationListManager(this);
 	_images = new ImageToTreatManager(this);
+	_errors = new OperationErrorsList(this);
 
 	connect(_operations, &OperationListManager::hasBeenChanged, this, &Application::markUnsaved);
 }
@@ -132,6 +134,8 @@ void Application::treatImages() {
 		return;
 	}
 
+	_errors->clearErrors();
+
 	while (_images->rowCount() > 0) {
 
 		QString imFile = _images->data(_images->index(0), Qt::DisplayRole).toString();
@@ -145,7 +149,7 @@ void Application::treatImages() {
 		ImageInfos* info = openImage(imFile.toStdString().c_str(), img, this);
 
 		if (!img.isValid() || info == nullptr) {
-			//TODO: add error message.
+			_errors->addError(OperationErrorInfos(imFile, tr("Error reading image")));
 			_images->removeImage(0);
 			continue;
 		}
@@ -154,7 +158,11 @@ void Application::treatImages() {
 			AbstractImageOperation* op = _operations->opAtRow(i);
 
 			if (op->doOperation(img, info)) {
-				//manage error here
+				if (op->getError().isValid()) {
+					_errors->addError(op->getError());
+				} else {
+					_errors->addError(OperationErrorInfos(imFile, tr("Unknown error"), op));
+				}
 				break;
 			}
 		}
@@ -358,6 +366,11 @@ void Application::loadOperationsFactories() {
 	_operationFactoryManager->insertFactory(new Operations::ReloadOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::SaveOpFactory(this));
 
+}
+
+OperationErrorsList *Application::errors() const
+{
+    return _errors;
 }
 
 ImageToTreatManager *Application::images() const

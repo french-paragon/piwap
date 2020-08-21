@@ -29,6 +29,7 @@ namespace Piwap {
 
 	class OperationFactoryManager;
 	class OperationListManager;
+	class OperationErrorsList;
 	class ImageToTreatManager;
 
 class Application : public QGuiApplication
@@ -41,6 +42,7 @@ public:
 	Q_PROPERTY(Piwap::OperationFactoryManager* operationFactoryManager READ operationFactoryManager CONSTANT)
 	Q_PROPERTY(Piwap::OperationListManager* operations READ operations CONSTANT)
 	Q_PROPERTY(Piwap::ImageToTreatManager* images READ images CONSTANT)
+	Q_PROPERTY(Piwap::OperationErrorsList* errors READ errors CONSTANT)
 
 	Q_PROPERTY(QString project_file_ext READ projectFileExt CONSTANT)
 
@@ -66,6 +68,8 @@ public:
 	QStringList recentFiles() const;
 
 	QString projectFileExt() const;
+
+	OperationErrorsList* errors() const;
 
 Q_SIGNALS:
 
@@ -96,6 +100,7 @@ protected:
 
 	OperationFactoryManager* _operationFactoryManager;
 	OperationListManager* _operations;
+	OperationErrorsList* _errors;
 
 	ImageToTreatManager* _images;
 
