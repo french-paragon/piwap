@@ -255,7 +255,7 @@ ApplicationWindow {
 
                 onClicked: {
                     if (addActionButton.isOpen) {
-                        swipeView.setCurrentIndex(0);
+                        tabBar.currentIndex = 0;
                         actionManagement.currentIndex = 0;
                     } else {
                         actionManagement.currentIndex = 1;
@@ -322,7 +322,7 @@ ApplicationWindow {
                 icon.color: "transparent"
 
                 onClicked: {
-                    swipeView.setCurrentIndex(1);
+                    tabBar.currentIndex = 1;
                     loadImageFileDialog.open();
                 }
 
@@ -361,7 +361,7 @@ ApplicationWindow {
                 onClicked: {
                     piwapp.treatImages()
                     if (imageManagement.errorCount > 0) {
-                        swipeView.currentIndex = 1
+                        tabBar.currentIndex = 1;
                         imageManagement.setErrorDisplay();
                     }
                 }
@@ -391,7 +391,7 @@ ApplicationWindow {
 
             onErrorDisplayClosed: {
                 actionManagement.currentIndex = 1;
-                swipeView.currentIndex = 0;
+                tabBar.currentIndex = 0;
             }
         }
 
