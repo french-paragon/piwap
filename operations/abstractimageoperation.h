@@ -55,6 +55,8 @@ public:
 	virtual QString getIconUrl() const;
 	virtual QString getOpName() const = 0;
 
+	virtual bool isSaving() const;
+
 	Q_INVOKABLE virtual QString getPropertiesEditorUrl() const = 0;
 
 	virtual QJsonObject asJsonObject() const;

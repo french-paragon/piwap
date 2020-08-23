@@ -40,6 +40,9 @@ QString AbstractImageOperation::getIconUrl() const {
 	return "qrc:/icons/operation.svg";
 }
 
+bool AbstractImageOperation::isSaving() const {
+	return false;
+}
 
 QJsonObject AbstractImageOperation::asJsonObject() const {
 

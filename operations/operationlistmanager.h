@@ -45,6 +45,9 @@ public:
 	void removeOp (int row);
 	void insertOp (AbstractImageOperation* op, int p_row = -1);
 
+	bool hasSaveOp() const;
+	bool endWithSaveOp() const;
+
 	void replaceOps(QList<AbstractImageOperation*> list, bool cleanup = true);
 
 	Q_INVOKABLE Piwap::AbstractImageOperation* opAtRow(int row);

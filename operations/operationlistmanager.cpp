@@ -191,6 +191,19 @@ void OperationListManager::moveAction(int from, int to) {
 
 }
 
+bool OperationListManager::hasSaveOp() const {
+	for (const AbstractImageOperation* op : _operations) {
+		if (op->isSaving()) {
+			return true;
+		}
+	}
+
+	return false;
+}
+bool OperationListManager::endWithSaveOp() const {
+	return  _operations.last()->isSaving();
+}
+
 QList<AbstractImageOperation *> OperationListManager::operations() const
 {
     return _operations;

@@ -46,6 +46,8 @@ public:
 	virtual QString getOpName() const;
 	virtual QString getIconUrl() const;
 
+	virtual bool isSaving() const;
+
 	virtual QString getPropertiesEditorUrl() const;
 
 	QString getFolderUrl() const;

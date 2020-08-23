@@ -130,11 +130,17 @@ void Application::removeOpFromProject(int id) {
 
 void Application::treatImages() {
 
+	_errors->clearErrors();
+
 	if (_operations->rowCount() == 0) {
+		_errors->addError(OperationErrorInfos("", tr("No operations in queue")));
 		return;
 	}
 
-	_errors->clearErrors();
+	if (!_operations->hasSaveOp()) {
+		_errors->addError(OperationErrorInfos("", tr("No save operation in queue")));
+		return;
+	}
 
 	while (_images->rowCount() > 0) {
 
