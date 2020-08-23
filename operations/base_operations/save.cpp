@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "image/imageinfos.h"
 
 #include <QDir>
+#include <QUrl>
 
 #include <Magick++.h>
 
@@ -64,12 +65,14 @@ int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {
 
 		outPutFolder += trail;
 
-		if (!outPutFolder.endsWith('/')) {
-			outPutFolder += '/';
-		}
-
 	}
 
+	if (!outPutFolder.endsWith('/')) {
+		outPutFolder += '/';
+	}
+
+	QUrl folderUrl(outPutFolder);
+	outPutFolder = outPutFolder.startsWith("file:") ? folderUrl.toLocalFile() : outPutFolder;
 	QDir out(outPutFolder);
 
 	if (!out.exists()) {

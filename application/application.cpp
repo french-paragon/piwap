@@ -142,7 +142,7 @@ void Application::treatImages() {
 
 		QUrl url(imFile);
 
-		imFile = url.toLocalFile();
+		imFile = imFile.startsWith("file:") ? url.toLocalFile() : imFile;
 
 		Magick::Image img;
 
