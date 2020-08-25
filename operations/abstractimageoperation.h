@@ -20,6 +20,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define PIWAP_ABSTRACTIMAGEOPERATION_H
 
 #include <QObject>
+
+#include<math.h>
+using std::isnan;
 #include <Magick++/Image.h>
 
 #include "operations/operationerror.h"

@@ -19,6 +19,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "imageio.h"
 #include "imageinfos.h"
 
+#include<math.h>
+using std::isnan;
 #include <Magick++/Image.h>
 
 #include <sys/stat.h>

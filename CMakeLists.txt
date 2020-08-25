@@ -12,7 +12,7 @@ ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-SET(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
 #OpenCV
@@ -22,7 +22,8 @@ set(CMAKE_AUTORCC ON)
 
 #ImageMagick
 
-find_package(ImageMagick COMPONENTS Magick++ MagickCore)
+find_package(ImageMagick REQUIRED COMPONENTS Magick++ MagickCore)
+
 include_directories( ${ImageMagick_INCLUDE_DIRS} )
 
 add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=16)

@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "checkpoint.h"
 #include "image/imageinfos.h"
 
-#include <magick/image.h>
+#include <Magick++/Image.h>
 
 namespace Piwap {
 namespace Operations {
