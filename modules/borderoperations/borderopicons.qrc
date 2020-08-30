@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/"/>
+    <qresource prefix="/borderoperations">
+        <file>icons/bevel.svg</file>
+    </qresource>
+</RCC>

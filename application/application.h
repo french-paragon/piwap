@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ORG_DOMAIN "famillejospin.ch"
 
 #include <QGuiApplication>
+class QPluginLoader;
 
 namespace Piwap {
 
@@ -90,6 +91,9 @@ public Q_SLOTS:
 
 protected:
 
+	void searchPlugins();
+	bool loadOperationPlugin(QString const& path);
+
 	void markSaved();
 	void markUnsaved();
 
@@ -101,6 +105,7 @@ protected:
 	OperationFactoryManager* _operationFactoryManager;
 	OperationListManager* _operations;
 	OperationErrorsList* _errors;
+	QList<QPluginLoader*> _loadedOpPlugins;
 
 	ImageToTreatManager* _images;
 

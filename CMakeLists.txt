@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(piwap)
 
+set(CMAKE_SHARED_MODULE_PREFIX "")
+
 #Qt
 
 find_package(Qt5Core REQUIRED)
@@ -41,6 +43,8 @@ endif()
 set(BUILD_SHARED_LIBS ON)
 
 #build
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 set(PROG_NAME ${CMAKE_PROJECT_NAME})
 set(PROG_SRC main.cpp
 	         image/imageinfos.cpp
@@ -59,6 +63,7 @@ set(PROG_SRC main.cpp
 			 operations/base_operations/resize.cpp
 			 operations/base_operations/save.cpp
 			 application/application.cpp
+			 application/operationplugin.cpp
 			 icons.qrc
 			 qml.qrc)
 
@@ -75,7 +80,9 @@ target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} )
 
 #icons processing
 add_subdirectory(icons)
+add_subdirectory(modules)
 
 #install
 install (TARGETS ${PROG_NAME} DESTINATION usr/bin)
+install (FILES ${CMAKE_CURRENT_SOURCE_DIR}/application/operationplugin.h DESTINATION usr/include/piwap)
 install (FILES desktops/Piwap.desktop DESTINATION usr/share/applications)

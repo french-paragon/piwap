@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/"/>
+    <qresource prefix="/borderoperations">
+        <file>qml/editors/BevelOpEditor.qml</file>
+    </qresource>
+</RCC>

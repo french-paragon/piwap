@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "application.h"
+#include "operationplugin.h"
 
 #include "operations/operationfactorymanager.h"
 #include "operations/operationlistmanager.h"
@@ -42,6 +43,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <QMetaProperty>
 
 #include <QSettings>
+
+#include <QDir>
+#include <QFileInfo>
+#include <QPluginLoader>
 
 #include <Magick++/Image.h>
 
@@ -85,6 +90,7 @@ OperationListManager *Application::operations() const
 
 void Application::init() {
 
+	searchPlugins();
 	loadOperationsFactories();
 
 }
@@ -363,8 +369,64 @@ void Application::addRecentFile(QString file) {
 	Q_EMIT recentFilesChanged(newRecentFiles);
 }
 
+void Application::searchPlugins() {
+
+	QDir pluginsDir = QDir(QCoreApplication::applicationDirPath());
+
+	if (pluginsDir.cd("modules")) { //built but not installed
+
+		for(QFileInfo info : pluginsDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+			QDir pluginDir(info.absoluteFilePath());
+			for(QFileInfo inf : pluginDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot)) {
+				if (inf.suffix() == "so") {
+					loadOperationPlugin(inf.absoluteFilePath());
+				}
+			}
+		}
+	} else { //installed
+		pluginsDir.cdUp();
+		pluginsDir.cd("lib");
+		pluginsDir.cd("piwap");
+		pluginsDir.cd("modules");
+
+		for(QFileInfo info : pluginsDir.entryInfoList(QDir::Files | QDir::NoDotAndDotDot)) {
+			if (info.suffix() == "so") {
+				loadOperationPlugin(info.absoluteFilePath());
+			}
+		}
+	}
+
+}
+
+bool Application::loadOperationPlugin(QString const& path) {
+
+	QPluginLoader* plugin = new QPluginLoader(path, this);
+	plugin->load();
+
+	if (plugin->instance() == nullptr) {
+		delete plugin;
+		return false;
+	}
+
+	OperationPlugin* opPlugin = qobject_cast<Piwap::OperationPlugin*>(plugin->instance());
+
+	if (opPlugin != nullptr) {
+		_loadedOpPlugins.push_back(plugin);
+	}
+
+	return true;
+
+}
+
 void Application::loadOperationsFactories() {
 
+	//Load operations from plugins.
+	for(QPluginLoader* plugin : _loadedOpPlugins) {
+		OperationPlugin* opPlugin = qobject_cast<OperationPlugin*>(plugin->instance());
+		opPlugin->loadPluginOperations(_operationFactoryManager);
+	}
+
+	//Load base operations.
 	_operationFactoryManager->insertFactory(new Operations::BackgroundOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::FitOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::ResizeOpFactory(this));
