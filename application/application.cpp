@@ -151,18 +151,33 @@ void Application::treatImages() {
 	while (_images->rowCount() > 0) {
 
 		QString imFile = _images->data(_images->index(0), Qt::DisplayRole).toString();
+		_images->removeImage(0);
 
 		QUrl url(imFile);
 
 		imFile = imFile.startsWith("file:") ? url.toLocalFile() : imFile;
 
 		Magick::Image img;
+		ImageInfos* info = nullptr;
 
-		ImageInfos* info = openImage(imFile.toStdString().c_str(), img, this);
+		try {
+			info = openImage(imFile.toStdString().c_str(), img, this);
+		} catch (Magick::ErrorFileOpen &error) { //TODO: treate warnings too.
+			Q_UNUSED(error);
+			_errors->addError(OperationErrorInfos(imFile.toStdString().c_str(), tr("Error reading image")));
+			continue;
+		} catch (Magick::ErrorMissingDelegate &error) {
+			Q_UNUSED(error);
+			_errors->addError(OperationErrorInfos(imFile.toStdString().c_str(), tr("Missing delegate for reading image")));
+			continue;
+		} catch (Magick::ErrorUndefined &error) {
+			Q_UNUSED(error);
+			_errors->addError(OperationErrorInfos(imFile.toStdString().c_str(), tr("Undefined error")));
+			continue;
+		}
 
 		if (!img.isValid() || info == nullptr) {
 			_errors->addError(OperationErrorInfos(imFile, tr("Error reading image")));
-			_images->removeImage(0);
 			continue;
 		}
 
@@ -180,8 +195,6 @@ void Application::treatImages() {
 		}
 
 		delete info;
-
-		_images->removeImage(0);
 
 	}
 
