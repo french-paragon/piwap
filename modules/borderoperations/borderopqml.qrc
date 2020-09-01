@@ -2,5 +2,6 @@
     <qresource prefix="/"/>
     <qresource prefix="/borderoperations">
         <file>qml/editors/BevelOpEditor.qml</file>
+        <file>qml/editors/DropShadowOpEditor.qml</file>
     </qresource>
 </RCC>

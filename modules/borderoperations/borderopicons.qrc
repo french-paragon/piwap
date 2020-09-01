@@ -2,5 +2,6 @@
     <qresource prefix="/"/>
     <qresource prefix="/borderoperations">
         <file>icons/bevel.svg</file>
+        <file>icons/drop_shadow.svg</file>
     </qresource>
 </RCC>

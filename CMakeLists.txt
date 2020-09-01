@@ -6,6 +6,7 @@ set(CMAKE_SHARED_MODULE_PREFIX "")
 #Qt
 
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
 find_package(Qt5QuickWidgets REQUIRED)
 find_package(Qt5Qml REQUIRED)
 find_package(Qt5Svg REQUIRED)
