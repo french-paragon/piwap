@@ -30,7 +30,7 @@ GridLayout {
     ColorSelector {
         id: colorSelector
 
-        color: fitOpEditor.operation.bg
+        color: backgroundOpEditor.operation.bg
 
         onColorChanged: {
             backgroundOpEditor.operation.bg = colorSelector.color;

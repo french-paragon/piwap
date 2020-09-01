@@ -41,7 +41,7 @@ GridLayout {
 
     onOperationChanged: {
 
-        nameField.model = operation.name
+        nameField.text = operation.name
     }
 
 }

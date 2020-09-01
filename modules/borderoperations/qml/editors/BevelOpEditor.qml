@@ -30,6 +30,12 @@ GridLayout {
         from: 0
         to: 999
         editable: true
+
+        onValueChanged: {
+            if (bevelOpEditor.operation != null) {
+                bevelOpEditor.operation.radius = radiusSelector.value
+            }
+        }
     }
 
     onOperationChanged: {
@@ -40,7 +46,7 @@ GridLayout {
     Connections {
         target: operation
 
-        onRadius_changed: {
+        onRadiusChanged: {
             radiusSelector.value = operation.radius
         }
     }

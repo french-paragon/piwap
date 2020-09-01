@@ -121,18 +121,18 @@ GridLayout {
     Connections {
         target: operation
 
-        onBlurRadius_changed: {
+        onBlurRadiusChanged: {
             radiusSelector.value = operation.blurRadius*100
         }
 
-        onBg_changed: {
+        onBgChanged: {
             colorSelector.color = operation.bg
         }
 
-        onDx_changed: {
+        onDxChanged: {
             dxSelector.value = dropshadowOpEditor.operation.dx
         }
-        onDy_changed: {
+        onDyChanged: {
             dySelector.value = dropshadowOpEditor.operation.dy
         }
     }
