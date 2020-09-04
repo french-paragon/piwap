@@ -47,7 +47,9 @@ int BackgroundColor::doOperation(Magick::Image & image, ImageInfos * infos) cons
 
 	Magick::Color bg(static_cast<Magick::Quantum>(r), static_cast<Magick::Quantum>(g), static_cast<Magick::Quantum>(b));
 
-	image.backgroundColor(bg);
+	Magick::Image comp(Magick::Geometry(image.columns(),image.rows()), bg);
+	comp.depth(image.depth());
+	image.composite(comp, 0, 0, Magick::DstOverCompositeOp);
 
 	return  0;
 }
