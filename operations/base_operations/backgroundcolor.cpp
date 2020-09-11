@@ -28,7 +28,7 @@ BackgroundColor::BackgroundColor(QObject *parent) :
 	AbstractImageOperation(parent),
 	_bg(255, 255, 255)
 {
-
+	connect(this, &BackgroundColor::bg_changed, this, &AbstractImageOperation::hasBeenChanged);
 }
 
 int BackgroundColor::doOperation(Magick::Image & image, ImageInfos * infos) const {

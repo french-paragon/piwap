@@ -12,7 +12,10 @@ DropShadow::DropShadow(QObject *parent) :
     _blur_radius(5),
     _bg(0,0,0)
 {
-
+	connect(this, &DropShadow::dxChanged, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &DropShadow::dyChanged, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &DropShadow::blurRadiusChanged, this, &AbstractImageOperation::hasBeenChanged);
+	connect(this, &DropShadow::bgChanged, this, &AbstractImageOperation::hasBeenChanged);
 }
 
 int DropShadow::doOperation(Magick::Image & image, ImageInfos * infos) const {
@@ -29,14 +32,14 @@ int DropShadow::doOperation(Magick::Image & image, ImageInfos * infos) const {
 
     size_t f_radius = 2*((_blur_radius > 0.0) ? static_cast<size_t>(std::ceil(_blur_radius)) : 0);
 
-    ssize_t sdx = (_dx > static_cast<int>(f_radius)) ? _dx : f_radius;
-    ssize_t sdy = (_dy > static_cast<int>(f_radius)) ? _dy : f_radius;
+	ssize_t sdx = (_dx > static_cast<int>(f_radius)) ? _dx : static_cast<int>(f_radius);
+	ssize_t sdy = (_dy > static_cast<int>(f_radius)) ? _dy : static_cast<int>(f_radius);
 
-    ssize_t idx = (_dx < static_cast<int>(f_radius)) ? f_radius-_dx : 0;
-    ssize_t idy = (_dy < static_cast<int>(f_radius)) ? f_radius-_dy : 0;
+	ssize_t idx = (_dx < static_cast<int>(f_radius)) ? static_cast<int>(f_radius)-_dx : 0;
+	ssize_t idy = (_dy < static_cast<int>(f_radius)) ? static_cast<int>(f_radius)-_dy : 0;
 
-    size_t nW = image.columns() + f_radius + std::max(static_cast<int>(f_radius),std::abs(_dx));
-    size_t nH = image.rows() + f_radius + std::max(static_cast<int>(f_radius),std::abs(_dy));
+	size_t nW = image.columns() + f_radius + static_cast<size_t>(std::max(static_cast<int>(f_radius),std::abs(_dx)));
+	size_t nH = image.rows() + f_radius + static_cast<size_t>(std::max(static_cast<int>(f_radius),std::abs(_dy)));
 
     alpha.extent(Magick::Geometry(nW, nH, -sdx, -sdy), white);
     if (f_radius > 0) {

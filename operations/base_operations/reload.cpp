@@ -121,6 +121,7 @@ const QString Reload::reloadOpTypeId = "piwapbase/reload";
 
 Reload::Reload(QObject *parent) : AbstractImageOperation(parent)
 {
+	connect(this, &Reload::checkpointChanged, this, &AbstractImageOperation::hasBeenChanged);
 	_p_checkpoints = new reloadCheckPointModel(this);
 }
 

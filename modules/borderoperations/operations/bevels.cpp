@@ -14,7 +14,7 @@ Bevels::Bevels(QObject *parent) :
 	AbstractImageOperation (parent),
 	_radius(50)
 {
-
+	connect(this, &Bevels::radiusChanged, this, &AbstractImageOperation::hasBeenChanged);
 }
 
 int Bevels::doOperation(Magick::Image & image, ImageInfos * infos) const {

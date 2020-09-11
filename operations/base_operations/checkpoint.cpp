@@ -29,6 +29,7 @@ const QString Checkpoint::checkpointOpTypeId = "piwapbase/checkpoint";
 Checkpoint::Checkpoint(QObject *parent) : AbstractImageOperation(parent),
 	_has_store(false)
 {
+	connect(this, &Checkpoint::nameChanged, this, &AbstractImageOperation::hasBeenChanged);
 	_storeInfos = new ImageInfos("", this);
 }
 
