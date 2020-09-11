@@ -30,6 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "operations/base_operations/resize.h"
 #include "operations/base_operations/save.h"
 #include "operations/base_operations/fit.h"
+#include "operations/base_operations/crop.h"
 #include "operations/base_operations/reload.h"
 #include "operations/base_operations/checkpoint.h"
 #include "operations/base_operations/backgroundcolor.h"
@@ -440,9 +441,10 @@ void Application::loadOperationsFactories() {
 	}
 
 	//Load base operations.
-	_operationFactoryManager->insertFactory(new Operations::BackgroundOpFactory(this));
-	_operationFactoryManager->insertFactory(new Operations::FitOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::ResizeOpFactory(this));
+	_operationFactoryManager->insertFactory(new Operations::FitOpFactory(this));
+	_operationFactoryManager->insertFactory(new Operations::CropOpFactory(this));
+	_operationFactoryManager->insertFactory(new Operations::BackgroundOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::CheckpointOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::ReloadOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::SaveOpFactory(this));

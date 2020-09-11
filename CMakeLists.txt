@@ -57,6 +57,7 @@ set(PROG_SRC main.cpp
 			 operations/operationlistmanager.cpp
                          operations/base_operations/abstractinterpolatingoperation.cpp
                          operations/base_operations/fit.cpp
+						 operations/base_operations/crop.cpp
 						 operations/base_operations/reload.cpp
 						 operations/base_operations/checkpoint.cpp
 						 operations/base_operations/backgroundcolor.cpp
