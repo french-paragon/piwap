@@ -358,20 +358,13 @@ void Application::addRecentFile(QString file) {
 
 	QFileInfo newF(file);
 
-	for(QString f : oldRecentFiles) {
-		QFileInfo oldF(f);
-
-		if (newF == oldF) {
-			return;
-		}
-	}
-
 	QStringList newRecentFiles;
 
 	QSettings s;
 	int max_recent_files = s.value("max_recent_files", 6).toInt();
 
 	newF.makeAbsolute(); //ensure the path is absolute.
+	oldRecentFiles.removeAll(newF.filePath());
 	newRecentFiles << newF.filePath();
 
 	for(int i = 0; i < std::min(oldRecentFiles.size(), max_recent_files); i++) {
