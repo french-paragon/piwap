@@ -90,7 +90,7 @@ int Crop::doOperation(Magick::Image & image, ImageInfos * infos) const {
 
 		Magick::Color bg(static_cast<Magick::Quantum>(r), static_cast<Magick::Quantum>(g), static_cast<Magick::Quantum>(b));
 
-		image.extent(Magick::Geometry(static_cast<size_t>(w), static_cast<size_t>(h), cropStartXPos - startXPos, cropStartYPos - startYPos), bg);
+		image.extent(Magick::Geometry(static_cast<size_t>(w), static_cast<size_t>(h), startXPos - cropStartXPos, startYPos - cropStartYPos), bg);
 
 	}
 
