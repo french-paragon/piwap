@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Piwap
+Comment=Batch images processing
+Exec=piwap
+Icon=piwap
+Categories=Graphics;
