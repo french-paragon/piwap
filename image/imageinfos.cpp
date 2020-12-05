@@ -28,6 +28,14 @@ ImageInfos::ImageInfos(QString originalFileUrl, QObject *parent) :
 	_infos(originalFileUrl)
 {
 
+	if (_infos.exists()) {
+		_image = Exiv2::ImageFactory::open(originalFileUrl.toStdString());
+
+		if(_image.get() != nullptr) {
+			_image->readMetadata();
+		}
+	}
+
 }
 
 QString ImageInfos::originalFileName() const
@@ -48,8 +56,21 @@ QString ImageInfos::originalImageType() const
 	return _infos.completeSuffix();
 }
 
+Exiv2::Image* ImageInfos::metadataobject() const {
+	return _image.get();
+}
+
 void ImageInfos::copyInfosFromOther(ImageInfos const& other) {
+
 	_infos = other._infos;
+
+	if (_infos.exists()) {
+		_image = Exiv2::ImageFactory::open(other.originalFilePath().toStdString());
+
+		if(_image.get() != nullptr) {
+			_image->readMetadata();
+		}
+	}
 }
 
 } // namespace Piwap

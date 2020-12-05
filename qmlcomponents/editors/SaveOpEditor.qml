@@ -114,12 +114,72 @@ ColumnLayout {
 
     }
 
+	RowLayout {
+
+		Layout.fillWidth: true
+		Layout.topMargin: saveOpEditor.labelTopMargin
+
+		Text {
+			id: metadataLabel
+			text: qsTr("Save metadata")
+
+			Layout.fillWidth: true
+		}
+
+		Text {
+			id: exivLabel
+			text: " " + qsTr("exif")
+		}
+
+		CheckBox {
+			id: exivCheckBox
+			tristate: false
+
+			onCheckStateChanged: {
+				saveOpEditor.operation.saveExif = exivCheckBox.checked;
+			}
+		}
+
+		Text {
+			id: iptcLabel
+			text: " " + qsTr("iptc")
+		}
+
+		CheckBox {
+			id: iptcCheckBox
+			tristate: false
+
+			onCheckStateChanged: {
+				saveOpEditor.operation.saveIptc = iptcCheckBox.checked;
+			}
+		}
+
+		Text {
+			id: xmpLabel
+			text: " " + qsTr("xmp")
+		}
+
+		CheckBox {
+			id: xmpCheckBox
+			tristate: false
+
+			onCheckStateChanged: {
+				saveOpEditor.operation.saveXmp = xmpCheckBox.checked;
+			}
+		}
+	}
+
+
     onOperationChanged: {
 
         folderSelectField.filePath = operation.folderUrl
         fileNameField.text = operation.fileName
         fileTypeField.text = operation.fileType
         qualitySpinBox.value = saveOpEditor.operation.compressionParameter
+
+		exivCheckBox.checked = operation.saveExif;
+		iptcCheckBox.checked = operation.saveIptc;
+		xmpCheckBox.checked = operation.saveXmp
 
     }
 
@@ -136,6 +196,18 @@ ColumnLayout {
         }
         onCompressionParameterChanged: {
             qualitySpinBox.value = saveOpEditor.operation.compressionParameter
-        }
+		}
+
+		onSaveExifChanged: {
+			exivCheckBox.checked = operation.saveExif;
+		}
+
+		onSaveIptcChanged: {
+			iptcCheckBox.checked = operation.saveIptc;
+		}
+
+		onSaveXmpChanged: {
+			xmpCheckBox.checked = operation.saveXmp;
+		}
     }
 }

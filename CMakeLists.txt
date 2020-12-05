@@ -38,6 +38,9 @@ if(NOT LZIP)
   message(FATAL_ERROR "libzip library not found")
 endif()
 
+#Exiv2
+
+find_package(exiv2 REQUIRED CONFIG NAMES exiv2)
 
 #libaries
 
@@ -76,6 +79,7 @@ target_link_libraries(${PROG_NAME} Qt5::QuickWidgets)
 target_link_libraries(${PROG_NAME} Qt5::Qml)
 target_link_libraries(${PROG_NAME} Qt5::Svg)
 target_link_libraries(${PROG_NAME} ${LZIP})
+target_link_libraries(${PROG_NAME} PRIVATE exiv2)
 
 #target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} )

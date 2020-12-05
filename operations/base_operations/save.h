@@ -37,6 +37,10 @@ public:
 	Q_PROPERTY(QString fileType READ getFileType WRITE setFileType NOTIFY fileTypeChanged)
 	Q_PROPERTY(int compressionParameter READ getCompressionParameter WRITE setCompressionParameter NOTIFY compressionParameterChanged)
 
+	Q_PROPERTY(bool saveExif READ saveExif WRITE setSaveExif NOTIFY saveExifChanged)
+	Q_PROPERTY(bool saveIptc READ saveIptc WRITE setSaveIptc NOTIFY saveIptcChanged)
+	Q_PROPERTY(bool saveXmp READ saveXmp WRITE setSaveXmp NOTIFY saveXmpChanged)
+
 	explicit Save(QObject *parent = nullptr);
 
 	virtual int doOperation(Magick::Image & image, ImageInfos * infos) const;
@@ -62,12 +66,25 @@ public:
 	int getCompressionParameter() const;
 	void setCompressionParameter(int compressionParameter);
 
+	bool saveExif() const;
+	void setSaveExif(bool saveExif);
+
+	bool saveIptc() const;
+	void setSaveIptc(bool saveIptc);
+
+	bool saveXmp() const;
+	void setSaveXmp(bool saveXmp);
+
 Q_SIGNALS:
 
 	void folderUrlChanged(QString folder);
 	void fileNameChanged(QString filename);
 	void fileTypeChanged(QString fileType);
 	void compressionParameterChanged(int compression);
+
+	void saveExifChanged(bool val);
+	void saveIptcChanged(bool val);
+	void saveXmpChanged(bool val);
 
 public Q_SLOTS:
 
@@ -77,6 +94,10 @@ protected:
 	QString _fileName;
 	QString _fileType;
 	int _compressionParameter;
+
+	bool _saveExif;
+	bool _saveIptc;
+	bool _saveXmp;
 };
 
 class SaveOpFactory : public AbstractOperationFactory {

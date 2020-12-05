@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "save.h"
 
+#include "application/application.h"
 #include "image/imageinfos.h"
 
 #include <QDir>
@@ -35,7 +36,10 @@ Save::Save(QObject *parent) :
 	_folderUrl("<folder>"),
 	_fileName("<filename>"),
 	_fileType("<filetype>"),
-	_compressionParameter(90)
+	_compressionParameter(90),
+	_saveExif(false),
+	_saveIptc(false),
+	_saveXmp(false)
 {
 
 	connect(this, &Save::folderUrlChanged, this, &AbstractImageOperation::hasBeenChanged);
@@ -82,7 +86,7 @@ int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {
 	QString fileName = _fileName;
 
 	if (fileName.indexOf("<filename>", 0, Qt::CaseInsensitive) >= 0) {
-		QStringList parts = fileName.split("<filename>", QString::KeepEmptyParts, Qt::CaseInsensitive);
+		QStringList parts = fileName.split("<filename>", Qt::KeepEmptyParts, Qt::CaseInsensitive);
 		QString constructed = "";
 
 		for (int i = 0; i < parts.size(); i++) {
@@ -120,6 +124,33 @@ int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {
 		Q_UNUSED(error);
 		setError(infos->originalFilePath(), tr("Unable to save to %1").arg(fPath));
 		return 1;
+	}
+
+	if (infos->metadataobject() != nullptr) {
+
+		Exiv2::Image::AutoPtr imExiv = Exiv2::ImageFactory::open(fPath.toStdString());
+
+		if (imExiv.get() != nullptr) {
+
+			Exiv2::ExifData exifD;
+			if (_saveExif) {
+				exifD = infos->metadataobject()->exifData();
+			}
+			exifD["Exif.Image.ProcessingSoftware"] = QString("%1").arg(APP_NAME).toStdString();
+			imExiv->setExifData(exifD);
+
+			if (_saveIptc) {
+				imExiv->setIptcData(infos->metadataobject()->iptcData());
+			}
+
+			if (_saveXmp) {
+				imExiv->setXmpData(infos->metadataobject()->xmpData());
+			}
+
+			imExiv->writeMetadata();
+
+		}
+
 	}
 
 	return 0;
@@ -195,6 +226,45 @@ void Save::setCompressionParameter(int compressionParameter)
 	if (_compressionParameter != compressionParameter) {
 		_compressionParameter = compressionParameter;
 		Q_EMIT compressionParameterChanged(compressionParameter);
+	}
+}
+
+bool Save::saveExif() const
+{
+	return _saveExif;
+}
+
+void Save::setSaveExif(bool se)
+{
+	if (se != _saveExif) {
+		_saveExif = se;
+		Q_EMIT saveExifChanged(se);
+	}
+}
+
+bool Save::saveIptc() const
+{
+	return _saveIptc;
+}
+
+void Save::setSaveIptc(bool si)
+{
+	if (si != _saveIptc) {
+		_saveIptc = si;
+		Q_EMIT saveIptcChanged(si);
+	}
+}
+
+bool Save::saveXmp() const
+{
+	return _saveXmp;
+}
+
+void Save::setSaveXmp(bool sx)
+{
+	if (sx != _saveXmp) {
+		_saveXmp = sx;
+		Q_EMIT saveXmpChanged(sx);
 	}
 }
 

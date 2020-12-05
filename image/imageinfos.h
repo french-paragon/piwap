@@ -22,6 +22,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QFileInfo>
 
+#include <exiv2/exiv2.hpp>
+
 namespace Piwap {
 
 class ImageInfos : public QObject
@@ -39,6 +41,8 @@ public:
 
 	void copyInfosFromOther(ImageInfos const& other);
 
+	Exiv2::Image* metadataobject() const;
+
 Q_SIGNALS:
 
 public Q_SLOTS:
@@ -46,7 +50,7 @@ public Q_SLOTS:
 protected:
 
 	QFileInfo _infos;
-
+	Exiv2::Image::AutoPtr _image;
 
 };
 
