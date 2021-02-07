@@ -128,7 +128,13 @@ int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {
 
 	if (infos->metadataobject() != nullptr) {
 
-		Exiv2::Image::AutoPtr imExiv = Exiv2::ImageFactory::open(fPath.toStdString());
+		Exiv2::Image::AutoPtr imExiv;
+
+		try {
+			imExiv = Exiv2::ImageFactory::open(fPath.toStdString());
+		} catch (Exiv2::Error const&) {
+			imExiv = Exiv2::Image::AutoPtr(nullptr);
+		}
 
 		if (imExiv.get() != nullptr) {
 

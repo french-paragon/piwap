@@ -29,7 +29,11 @@ ImageInfos::ImageInfos(QString originalFileUrl, QObject *parent) :
 {
 
 	if (_infos.exists()) {
-		_image = Exiv2::ImageFactory::open(originalFileUrl.toStdString());
+		try {
+			_image = Exiv2::ImageFactory::open(originalFileUrl.toStdString());
+		} catch (Exiv2::Error) {
+			_image = Exiv2::Image::AutoPtr(nullptr);
+		}
 
 		if(_image.get() != nullptr) {
 			_image->readMetadata();
