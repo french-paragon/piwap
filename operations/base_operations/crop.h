@@ -33,6 +33,8 @@ class Crop : public AbstractImageOperation
 	Q_OBJECT
 public:
 
+	static std::optional<Image::ImageData> crop(Image::ImageData const& inData, QSize const& cropSize, QPoint const& cropStart, QColor const& fillColor);
+
 	static const QString cropOpTypeId;
 
 	Q_PROPERTY(int width READ width WRITE setWidth NOTIFY widthChanged)
@@ -70,14 +72,14 @@ public:
 
 	explicit Crop(QObject *parent = nullptr);
 
-	virtual int doOperation(Magick::Image & image, ImageInfos * infos) const;
+	virtual int doOperation(Image *image, ImageInfos * infos) const override;
 
-	virtual QString typeId() const;
+	virtual QString typeId() const override;
 
-	virtual QString getOpName() const;
-	virtual QString getIconUrl() const;
+	virtual QString getOpName() const override;
+	virtual QString getIconUrl() const override;
 
-	virtual QString getPropertiesEditorUrl() const;
+	virtual QString getPropertiesEditorUrl() const override;
 
 	int width() const;
 	void setWidth(int width);

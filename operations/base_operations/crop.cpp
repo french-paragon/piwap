@@ -2,12 +2,91 @@
 
 #include <QMetaEnum>
 
+#include <QPoint>
+#include <QSize>
+
 #include "image/imageinfos.h"
+#include "image/color.h"
 
 namespace Piwap {
 namespace Operations {
 
 const QString Crop::cropOpTypeId = "piwapbase/crop";
+
+template<typename ArrayT>
+std::optional<Image::ImageData> cropImpl(ArrayT const& inData,
+										 QSize const& cropSize,
+										 QPoint const& cropStart,
+										 QColor const& fillColor) {
+
+	using ScalarT = typename ArrayT::ScalarT;
+
+	int nChannels = inData.shape()[2];
+
+	int initialH = inData.shape()[0];
+	int initialW = inData.shape()[1];
+
+	ImageArray<ScalarT> cropped(cropSize.height(), cropSize.width(), nChannels);
+
+	int di = std::max(0, cropSize.height()-initialH)/2;
+	int dj = std::max(0, cropSize.width()-initialW)/2;
+
+	float r = fillColor.redF();
+	float g = fillColor.greenF();
+	float b = fillColor.blueF();
+
+	std::vector<float> color;
+
+	if (nChannels == 3) {
+
+		color = {r,g,b};
+
+	} else if (nChannels == 4) {
+		float a = fillColor.alphaF();
+
+		color = {r,g,b,a};
+	} else {
+		float gray = (r + g + b)/3;
+		color = {gray};
+	}
+
+	std::vector<ScalarT> convertedFillColor(nChannels);
+
+	for (int c = 0; c < nChannels; c++) {
+		convertedFillColor[c] = convertTypedWhiteLevel<ScalarT>(color[std::max<size_t>(c, color.size()-1)]);
+	}
+
+	for (int i = 0; i < cropped.shape()[0]; i++) {
+		for (int j = 0; j < cropped.shape()[1]; j++) {
+			for (int c = 0; c < cropped.shape()[2]; c++) {
+
+				ScalarT val = convertedFillColor[c];
+
+				if (i >= di and i - di < initialH) {
+					if (j >= dj and j - dj < initialW) {
+						val = inData.valueUnchecked(i-di,j-dj,c);
+					}
+				}
+
+				cropped.atUnchecked(i,j,c) = val;
+
+			}
+		}
+	}
+
+	return cropped;
+}
+
+std::optional<Image::ImageData> Crop::crop(Image::ImageData const& inData,
+										   QSize const& cropSize,
+										   QPoint const& cropStart,
+										   QColor const& fillColor) {
+
+
+	return std::visit([& cropSize, & cropStart, & fillColor] (auto const& inData) {
+		return cropImpl(inData, cropSize, cropStart, fillColor);}, inData);
+
+}
 
 Crop::Crop(QObject *parent) :
 	AbstractImageOperation (parent),
@@ -29,38 +108,38 @@ Crop::Crop(QObject *parent) :
 
 }
 
-int Crop::doOperation(Magick::Image & image, ImageInfos * infos) const {
+int Crop::doOperation(Image* image, ImageInfos * infos) const {
 
 	int w = _width;
 	int h = _height;
 
 	if (w <= 0) {
-		w = static_cast<int>(image.columns());
+		w = static_cast<int>(image->width());
 	}
 
 	if (h <= 0) {
-		h = static_cast<int>(image.rows());
+		h = static_cast<int>(image->height());
 	}
 
 	int startXPos = _dx;
 	int startYPos = _dy;
 
 	if (_anchor & DirRight) {
-		startXPos += static_cast<int>(image.columns()) - _width;
+		startXPos += static_cast<int>(image->width()) - _width;
 	} else if (!(_anchor & DirLeft)) {
-		startXPos += (static_cast<int>(image.columns()) - _width)/2;
+		startXPos += (static_cast<int>(image->width()) - _width)/2;
 	}
 
 	if (_anchor & DirBottom) {
-		startYPos += static_cast<int>(image.rows()) - _height;
+		startYPos += static_cast<int>(image->height()) - _height;
 	} else if (!(_anchor & DirTop)) {
-		startYPos += (static_cast<int>(image.rows()) - _height)/2;
+		startYPos += (static_cast<int>(image->height()) - _height)/2;
 	}
 
 	int endXPos = startXPos + w;
 	int endYPos = startYPos + h;
 
-	if (endXPos < 0 or endYPos < 0 or startXPos >= static_cast<int>(image.columns()) or startYPos >= static_cast<int>(image.columns())) {
+	if (endXPos < 0 or endYPos < 0 or startXPos >= static_cast<int>(image->width()) or startYPos >= static_cast<int>(image->width())) {
 		setError(infos->originalFileName(), tr("Cropping area outside of image boundary, aborting operation !"));
 		return 1;
 	}
@@ -68,31 +147,25 @@ int Crop::doOperation(Magick::Image & image, ImageInfos * infos) const {
 	int cropStartXPos = std::max(startXPos, 0);
 	int cropStartYPos = std::max(startYPos, 0);
 
-	int cropEndXPos = std::min(static_cast<int>(image.columns()), endXPos);
-	int cropEndYPos = std::min(static_cast<int>(image.rows()), endYPos);
+	int cropEndXPos = std::min(static_cast<int>(image->width()), endXPos);
+	int cropEndYPos = std::min(static_cast<int>(image->height()), endYPos);
 
 	int cropWidth = cropEndXPos - cropStartXPos;
 	int cropHeight = cropEndYPos - cropStartYPos;
 
-	image.crop(Magick::Geometry(static_cast<size_t>(cropWidth), static_cast<size_t>(cropHeight), cropStartXPos, cropStartYPos));
-
-	if (_allowGrowing and (cropWidth < w || cropHeight < h)) {
-
-		int r = _bg.red();
-		int g = _bg.green();
-		int b = _bg.blue();
-
-		if (MAGICKCORE_QUANTUM_DEPTH == 16) {
-			r <<= 8;
-			g <<= 8;
-			b <<= 8;
-		}
-
-		Magick::Color bg(static_cast<Magick::Quantum>(r), static_cast<Magick::Quantum>(g), static_cast<Magick::Quantum>(b));
-
-		image.extent(Magick::Geometry(static_cast<size_t>(w), static_cast<size_t>(h), startXPos - cropStartXPos, startYPos - cropStartYPos), bg);
-
+	if (!_allowGrowing) {
+		cropWidth = std::min(cropWidth, w);
+		cropHeight = std::min(cropHeight, h);
 	}
+
+	std::optional<Image::ImageData> croppedOpt = Crop::crop(image->imageData(), QSize(cropWidth, cropHeight), QPoint(cropStartXPos, cropStartYPos), _bg);
+
+	if (!croppedOpt.has_value()) {
+		setError(infos->originalFileName(), tr("Invalid crop operation"));
+		return 1;
+	}
+
+	image->imageData() = std::move(croppedOpt.value());
 
 	return 0;
 }

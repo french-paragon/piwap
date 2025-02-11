@@ -38,8 +38,8 @@ public:
 
 	explicit Checkpoint(QObject *parent = nullptr);
 
-	virtual int doOperation(Magick::Image & image, ImageInfos * infos) const;
-	int restoreCheckpoint(Magick::Image & image, ImageInfos * infos) const;
+	virtual int doOperation(Image* image, ImageInfos * infos) const;
+	int restoreCheckpoint(Image* image, ImageInfos * infos) const;
 
 	virtual QString typeId() const;
 
@@ -60,7 +60,8 @@ public Q_SLOTS:
 
 private:
 
-	mutable Magick::Image _store;
+	mutable Image::ImageData _store_data;
+	mutable ColorModel _store_color_model;
 	mutable ImageInfos * _storeInfos;
 	mutable bool _has_store;
 

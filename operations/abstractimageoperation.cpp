@@ -1,6 +1,6 @@
 /*Piwap, or Picture Warping App, is a GUI to batch process images.
 
-Copyright (C) 2019  Paragon<french.paragon@gmail.com>
+Copyright (C) 2019-2025  Paragon<french.paragon@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

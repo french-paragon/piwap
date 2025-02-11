@@ -19,8 +19,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "checkpoint.h"
 #include "image/imageinfos.h"
 
-#include <Magick++/Image.h>
-
 namespace Piwap {
 namespace Operations {
 
@@ -33,20 +31,22 @@ Checkpoint::Checkpoint(QObject *parent) : AbstractImageOperation(parent),
 	_storeInfos = new ImageInfos("", this);
 }
 
-int Checkpoint::doOperation(Magick::Image & image, ImageInfos * infos) const {
-	_store = image;
+int Checkpoint::doOperation(Image* image, ImageInfos * infos) const {
+	_store_data = image->imageData();
+	_store_color_model = image->colorModel();
 	_storeInfos->copyInfosFromOther(*infos);
 	_has_store = true;
 
 	return 0;
 }
-int Checkpoint::restoreCheckpoint(Magick::Image & image, ImageInfos * infos) const {
+int Checkpoint::restoreCheckpoint(Image *image, ImageInfos * infos) const {
 
 	if (!_has_store) {
 		return 1;
 	}
 
-	image = _store;
+	image->imageData() = _store_data;
+	image->setColorModel(_store_color_model);
 	infos->copyInfosFromOther(*_storeInfos);
 
 	return 0;

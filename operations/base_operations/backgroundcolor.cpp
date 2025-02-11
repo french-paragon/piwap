@@ -31,25 +31,61 @@ BackgroundColor::BackgroundColor(QObject *parent) :
 	connect(this, &BackgroundColor::bg_changed, this, &AbstractImageOperation::hasBeenChanged);
 }
 
-int BackgroundColor::doOperation(Magick::Image & image, ImageInfos * infos) const {
+template<typename ScalarT>
+Image::ImageData setBackgroundColor(ImageArray<ScalarT> const& inData, ColorModel imgColorModel, QColor bgColor) {
+
+	int alphaChannel = alphaChannelIndex(imgColorModel);
+
+	if (alphaChannel < 0 or alphaChannel >= inData.shape()[2]) {
+		return inData;
+	}
+
+	ColorModel outModel = removeColorModelAlphaChannel(imgColorModel);
+
+	ImageArray<ScalarT> ret(inData.shape()[0],inData.shape()[1], inData.shape()[2]-1);
+
+	int nChannels = ret.shape()[2];
+
+	std::vector<ScalarT> color = getChannelValueFromQColor<ScalarT>(outModel, bgColor);
+
+	for (int i = 0; i < ret.shape()[0]; i++) {
+		for (int j = 0; j < ret.shape()[1]; j++) {
+			for (int c = 0; c < ret.shape()[2]; c++) {
+				int sc = c;
+				if (c >= alphaChannel) {
+					sc += 1;
+				}
+
+				float alphaCoeff = float(inData.value(i,j,alphaChannel))/float(typedWhiteLevel<ScalarT>());
+
+				ret.atUnchecked(i,j,c) = inData.valueUnchecked(i,j,sc)*alphaCoeff + color[c]*(1-alphaCoeff);
+
+			}
+		}
+	}
+
+	return ret;
+
+}
+
+int BackgroundColor::doOperation(Image *image, ImageInfos * infos) const {
 
 	Q_UNUSED(infos);
 
-	int r = _bg.red();
-	int g = _bg.green();
-	int b = _bg.blue();
+	int alphaChannel = image->alphaChannel();
 
-	if (MAGICKCORE_QUANTUM_DEPTH == 16) {
-		r <<= 8;
-		g <<= 8;
-		b <<= 8;
+	if (alphaChannel < 0 or alphaChannel >= image->channels()) {
+		return 0;
 	}
 
-	Magick::Color bg(static_cast<Magick::Quantum>(r), static_cast<Magick::Quantum>(g), static_cast<Magick::Quantum>(b));
+	ColorModel inModel = image->colorModel();
+	ColorModel outModel = removeColorModelAlphaChannel(inModel);
 
-	Magick::Image comp(Magick::Geometry(image.columns(),image.rows()), bg);
-	comp.depth(image.depth());
-	image.composite(comp, 0, 0, Magick::DstOverCompositeOp);
+	image->imageData() = std::visit([inModel, this] (auto const& inData) {
+		return setBackgroundColor(inData, inModel, _bg);
+	}, image->imageData());
+
+	image->setColorModel(outModel);
 
 	return  0;
 }

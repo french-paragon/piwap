@@ -1,6 +1,6 @@
 /*Piwap, or Picture Warping App, is a GUI to batch process images.
 
-Copyright (C) 2019  Paragon<french.paragon@gmail.com>
+Copyright (C) 2019-2024  Paragon<french.paragon@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,11 +20,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "application/application.h"
 #include "image/imageinfos.h"
+#include "image/imageio.h"
 
 #include <QDir>
 #include <QUrl>
-
-#include <Magick++.h>
 
 namespace Piwap {
 namespace Operations {
@@ -49,7 +48,7 @@ Save::Save(QObject *parent) :
 
 }
 
-int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {
+int Save::doOperation(Image *image, ImageInfos * infos) const {
 
 	QString outPutFolder = _folderUrl;
 
@@ -114,17 +113,7 @@ int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {
 		compressionParameter = 100;
 	}
 
-	image.quality(compressionParameter);
-
-	try {
-
-		image.write(fPath.toStdString());
-
-	} catch (Magick::Exception & error) {
-		Q_UNUSED(error);
-		setError(infos->originalFilePath(), tr("Unable to save to %1").arg(fPath));
-		return 1;
-	}
+	infos->setQuality(compressionParameter);
 
 	if (infos->metadataobject() != nullptr) {
 
@@ -137,26 +126,29 @@ int Save::doOperation(Magick::Image &image, ImageInfos * infos) const {
 		}
 
 		if (imExiv.get() != nullptr) {
-
 			Exiv2::ExifData exifD;
 			if (_saveExif) {
 				exifD = infos->metadataobject()->exifData();
 			}
-			exifD["Exif.Image.ProcessingSoftware"] = QString("%1").arg(APP_NAME).toStdString();
+			exifD["Exif.Image.ProcessingSoftware"] = QString("%1").arg(APP_NAME).toStdString(); //set the proper processing software
 			imExiv->setExifData(exifD);
-
-			if (_saveIptc) {
-				imExiv->setIptcData(infos->metadataobject()->iptcData());
-			}
-
-			if (_saveXmp) {
-				imExiv->setXmpData(infos->metadataobject()->xmpData());
-			}
-
-			imExiv->writeMetadata();
-
 		}
+	}
 
+	bool ok = true;
+
+	try {
+
+		ok = writeImage(fPath.toStdString().c_str(), image, infos, _saveExif, _saveIptc, _saveXmp);
+
+	} catch (std::exception & error) {
+		Q_UNUSED(error);
+		setError(infos->originalFilePath(), tr("Unable to save to %1").arg(fPath));
+		return 1;
+	}
+
+	if (!ok) {
+		return 1;
 	}
 
 	return 0;

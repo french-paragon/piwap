@@ -1,6 +1,6 @@
 /*Piwap, or Picture Warping App, is a GUI to batch process images.
 
-Copyright (C) 2020  Paragon<french.paragon@gmail.com>
+Copyright (C) 2020-2025  Paragon<french.paragon@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,14 +39,14 @@ public:
 
 	explicit Reload(QObject *parent = nullptr);
 
-	virtual int doOperation(Magick::Image & image, ImageInfos * infos) const;
+	virtual int doOperation(Image* image, ImageInfos * infos) const override;
 
-	virtual QString typeId() const;
+	virtual QString typeId() const override;
 
-	virtual QString getIconUrl() const;
-	virtual QString getOpName() const;
+	virtual QString getIconUrl() const override;
+	virtual QString getOpName() const override;
 
-	Q_INVOKABLE virtual QString getPropertiesEditorUrl() const;
+	Q_INVOKABLE virtual QString getPropertiesEditorUrl() const override;
 
 	QAbstractItemModel* possibleCheckpoints() const;
 

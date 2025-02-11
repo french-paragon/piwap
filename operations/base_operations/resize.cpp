@@ -22,10 +22,78 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <QMetaEnum>
 #include <QDebug>
 
+#include "image/imageinfos.h"
+
 namespace Piwap {
 namespace Operations {
 
 const QString Resize::resizeOpTypeId = "piwapbase/resize";
+
+
+template<typename ArrayT, typename Interpolator>
+static ArrayT resizeImpl(ArrayT const& img, QSize const& newSize) {
+
+	ArrayT ret(newSize.height(), newSize.width(), img.shape()[2]);
+
+	float scaleHeight = double(img.shape()[0]) / double(newSize.height());
+	float scaleWidth = double(img.shape()[1]) / double(newSize.width());
+
+	std::array<float,2> filterRadiuses = {scaleHeight, scaleWidth};
+
+	for (int i = 0; i < newSize.height(); i++) {
+		for (int j = 0; j < newSize.width(); j++) {
+			for (int c = 0; c < img.shape()[2]; c++) {
+
+				ret.atUnchecked(i,j,c) = Interpolator::interpolate({scaleHeight*i, scaleWidth*j, float(c)}, img, filterRadiuses);
+
+			}
+		}
+	}
+
+	return ret;
+
+}
+
+
+std::optional<Image::ImageData> Resize::resize(Image::ImageData const& inData, QSize const& newSize, InterpolationMode interpolationMode) {
+
+	switch(interpolationMode) {
+	case Nearest: {
+		using IKer = InterpolatorKernel<Nearest>;
+		return std::visit([&newSize] (auto const& data) -> Image::ImageData {
+			return resizeImpl<std::decay_t<decltype(data)>,IKer>(data, newSize); },
+		inData);
+		}
+	case Linear: {
+		using IKer = InterpolatorKernel<Linear>;
+		return std::visit([&newSize] (auto const& data) -> Image::ImageData {
+			return resizeImpl<std::decay_t<decltype(data)>,IKer>(data, newSize); },
+		inData);
+		}
+	case Area: {
+		using IKer = InterpolatorKernel<Area>;
+		return std::visit([&newSize] (auto const& data) -> Image::ImageData {
+			return resizeImpl<std::decay_t<decltype(data)>,IKer>(data, newSize); },
+		inData);
+		}
+	case Cubic: {
+		using IKer = InterpolatorKernel<Cubic>;
+		return std::visit([&newSize] (auto const& data) -> Image::ImageData {
+			return resizeImpl<std::decay_t<decltype(data)>,IKer>(data, newSize); },
+		inData);
+		}
+	case Lanczos: {
+		using IKer = InterpolatorKernel<Lanczos>;
+		return std::visit([&newSize] (auto const& data) -> Image::ImageData {
+			return resizeImpl<std::decay_t<decltype(data)>,IKer>(data, newSize); },
+		inData);
+		}
+	default:
+		break;
+	}
+
+	return std::nullopt;
+}
 
 Resize::Resize(QObject *parent) :
 	AbstractInterpolatingOperation(parent),
@@ -38,7 +106,7 @@ Resize::Resize(QObject *parent) :
 	connect(this, &Resize::fitModeChanged, this, &AbstractImageOperation::hasBeenChanged);
 }
 
-int Resize::doOperation(Magick::Image &image, ImageInfos *infos) const {
+int Resize::doOperation(Image* image, ImageInfos *infos) const {
 
 	Q_UNUSED(infos);
 
@@ -49,7 +117,7 @@ int Resize::doOperation(Magick::Image &image, ImageInfos *infos) const {
 	int newWidth;
 	int newHeight;
 
-	float aspectRatio = static_cast<float>(image.size().width()) / static_cast<float>(image.size().height());
+	float aspectRatio = static_cast<float>(image->width()) / static_cast<float>(image->height());
 
 	if (_pix_x > 0 && _pix_y <= 0) {
 
@@ -108,10 +176,10 @@ int Resize::doOperation(Magick::Image &image, ImageInfos *infos) const {
 			// derivative: 2*im.cols*(im.cols*a - _pix_x) + 2*im.rows(im.rows*a - _pix_y) = 0
 			// (im.cols^2 + im.rows^2)*a = im.cols*_pix_x + im.rows*_pix_y
 			// a = (im.cols*_pix_x + im.rows*_pix_y)/(im.cols^2 + im.rows^2)
-			float a = static_cast<float>(image.size().width()*static_cast<size_t>(_pix_x) + image.size().height()*static_cast<size_t>(_pix_y)) /
-					static_cast<float>(image.size().width()*image.size().width() + image.size().height()*image.size().height());
-			newWidth = static_cast<int>(roundf(image.size().width()*a));
-			newHeight = static_cast<int>(roundf(image.size().height()*a));
+			float a = static_cast<float>(image->width()*static_cast<size_t>(_pix_x) + image->height()*static_cast<size_t>(_pix_y)) /
+					static_cast<float>(image->width()*image->width() + image->height()*image->height());
+			newWidth = static_cast<int>(roundf(image->width()*a));
+			newHeight = static_cast<int>(roundf(image->height()*a));
 		}
 			break;
 
@@ -119,11 +187,16 @@ int Resize::doOperation(Magick::Image &image, ImageInfos *infos) const {
 
 	}
 
-	image.filterType(static_cast<Magick::FilterTypes>(_interpolation_mode));
-	Magick::Geometry newSize(static_cast<size_t>(newWidth), static_cast<size_t>(newHeight));
-	newSize.aspect(true); //we do take care of computing dimensions to keep aspect ratio already (if needed).
-	image.resize(newSize);
+	QSize newSize(static_cast<size_t>(newWidth), static_cast<size_t>(newHeight));
 
+	auto resizedOpt = resize(image->imageData(), newSize, _interpolation_mode);
+
+	if (!resizedOpt.has_value()) {
+		setError(infos->originalFileName(), "Invalid resize operation");
+		return 1;
+	}
+
+	image->imageData() = std::move(resizedOpt.value());
 
 	return 0;
 

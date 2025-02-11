@@ -52,14 +52,14 @@ public:
 
 	explicit Fit(QObject *parent = nullptr);
 
-	virtual int doOperation(Magick::Image & image, ImageInfos * infos) const;
+	virtual int doOperation(Image* image, ImageInfos * infos) const override;
 
-	virtual QString typeId() const;
+	virtual QString typeId() const override;
 
-	virtual QString getOpName() const;
-	virtual QString getIconUrl() const;
+	virtual QString getOpName() const override;
+	virtual QString getIconUrl() const override;
 
-	virtual QString getPropertiesEditorUrl() const;
+	virtual QString getPropertiesEditorUrl() const override;
 
 	int pix_x() const;
 	void setPix_x(int pix_x);

@@ -49,8 +49,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QPluginLoader>
 
-#include <Magick++/Image.h>
-
 namespace Piwap {
 
 const QString Application::PROJECT_FILE_EXT = ".pictwarpingops";
@@ -158,34 +156,28 @@ void Application::treatImages() {
 
 		imFile = imFile.startsWith("file:") ? url.toLocalFile() : imFile;
 
-		Magick::Image img;
-		ImageInfos* info = nullptr;
+		ImageWithInfos imgWithInfos = openImage(imFile.toStdString().c_str(), this, this);
 
-		try {
-			info = openImage(imFile.toStdString().c_str(), img, this);
-		} catch (Magick::ErrorFileOpen &error) { //TODO: treate warnings too.
-			Q_UNUSED(error);
+		if (imgWithInfos.image == nullptr) {
 			_errors->addError(OperationErrorInfos(imFile.toStdString().c_str(), tr("Error reading image")));
-			continue;
-		} catch (Magick::ErrorMissingDelegate &error) {
-			Q_UNUSED(error);
-			_errors->addError(OperationErrorInfos(imFile.toStdString().c_str(), tr("Missing delegate for reading image")));
-			continue;
-		} catch (Magick::ErrorUndefined &error) {
-			Q_UNUSED(error);
-			_errors->addError(OperationErrorInfos(imFile.toStdString().c_str(), tr("Undefined error")));
+			if (imgWithInfos.infos != nullptr) {
+				delete imgWithInfos.infos;
+			}
 			continue;
 		}
 
-		if (!img.isValid() || info == nullptr) {
-			_errors->addError(OperationErrorInfos(imFile, tr("Error reading image")));
+		if (imgWithInfos.infos == nullptr) {
+			_errors->addError(OperationErrorInfos(imFile.toStdString().c_str(), tr("Error reading image metadata")));
+			if (imgWithInfos.image != nullptr) {
+				delete imgWithInfos.image;
+			}
 			continue;
 		}
 
 		for (int i = 0; i < _operations->rowCount(); i++) {
 			AbstractImageOperation* op = _operations->opAtRow(i);
 
-			if (op->doOperation(img, info)) {
+			if (op->doOperation(imgWithInfos.image, imgWithInfos.infos)) {
 				if (op->getError().isValid()) {
 					_errors->addError(op->getError());
 				} else {
@@ -195,7 +187,8 @@ void Application::treatImages() {
 			}
 		}
 
-		delete info;
+		delete imgWithInfos.image;
+		delete imgWithInfos.infos;
 
 	}
 

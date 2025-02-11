@@ -1,6 +1,6 @@
 /*Piwap, or Picture Warping App, is a GUI to batch process images.
 
-Copyright (C) 2019-2024  Paragon<french.paragon@gmail.com>
+Copyright (C) 2024  Paragon<french.paragon@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,32 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef IMAGEIO_H
-#define IMAGEIO_H
-
-#include "./image.h"
-
-class QObject;
+#include "image.h"
 
 namespace Piwap {
 
-class ImageInfos;
+Image::Image(QObject *parent) :
+	QObject(parent)
+{
 
-struct ImageWithInfos {
-	Image* image;
-	ImageInfos* infos;
-};
+}
 
-ImageWithInfos openImage(const char* fileName, QObject *imgParent = nullptr, QObject *infoParent = nullptr);
-int reloadImage(Image::ImageData & imageDest, ImageInfos* infos);
-
-bool writeImage(const char* fileName,
-				Image* image,
-				ImageInfos* infos,
-				bool saveExif = true,
-				bool saveIptc = true,
-				bool saveXmp = true);
-
-}// namespace Piwap
-
-#endif // IMAGEIO_H
+} // namespace Piwap

@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(piwap)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_SHARED_MODULE_PREFIX "")
 
 #Qt
@@ -18,19 +21,17 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-#OpenCV
+#Images libraries
 
-#find_package( OpenCV REQUIRED )
-#include_directories( ${OpenCV_INCLUDE_DIRS} )
-
-#ImageMagick
+find_package(JPEG REQUIRED)
+find_package(PNG REQUIRED)
+find_package(TIFF REQUIRED)
 
 find_package(ImageMagick REQUIRED COMPONENTS Magick++ MagickCore)
 
 include_directories( ${ImageMagick_INCLUDE_DIRS} )
 
-add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=16)
-add_definitions(-DMAGICKCORE_HDRI_ENABLE=0)
+#LZip
 
 find_library(LZIP zip)
 
@@ -51,20 +52,22 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(PROG_NAME ${CMAKE_PROJECT_NAME})
 set(PROG_SRC main.cpp
-	         image/imageinfos.cpp
+	         image/image.cpp
+			 image/imageinfos.cpp
 			 image/imagetotreatmanager.cpp
 			 image/imageio.cpp
 	         operations/abstractimageoperation.cpp
 			 operations/abstractoperationfactory.cpp
 			 operations/operationfactorymanager.cpp
 			 operations/operationlistmanager.cpp
-                         operations/base_operations/abstractinterpolatingoperation.cpp
-                         operations/base_operations/fit.cpp
-						 operations/base_operations/crop.cpp
-						 operations/base_operations/reload.cpp
-						 operations/base_operations/checkpoint.cpp
-						 operations/base_operations/backgroundcolor.cpp
-						 operations/operationerror.cpp
+			 operations/base_operations/abstractinterpolatingoperation.cpp
+			 operations/base_operations/fit.cpp
+			 operations/base_operations/crop.cpp
+			 operations/base_operations/reload.cpp
+			 operations/base_operations/checkpoint.cpp
+			 operations/base_operations/backgroundcolor.cpp
+			 operations/operationerror.cpp
+			 operations/helper_functions/alphachannelsutils.cpp
 			 operations/base_operations/resize.cpp
 			 operations/base_operations/save.cpp
 			 application/application.cpp
@@ -79,6 +82,9 @@ target_link_libraries(${PROG_NAME} Qt5::QuickWidgets)
 target_link_libraries(${PROG_NAME} Qt5::Qml)
 target_link_libraries(${PROG_NAME} Qt5::Svg)
 target_link_libraries(${PROG_NAME} ${LZIP})
+target_link_libraries(${PROG_NAME} JPEG::JPEG)
+target_link_libraries(${PROG_NAME} PNG::PNG)
+target_link_libraries(${PROG_NAME} TIFF::TIFF)
 target_link_libraries(${PROG_NAME} PRIVATE exiv2)
 
 #target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )

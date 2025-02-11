@@ -3,7 +3,7 @@
 #include <list>
 #include <QFile>
 
-#include <magick/quantum.h>
+#include "operations/helper_functions/alphachannelsutils.h"
 
 namespace Piwap {
 namespace BorderOperations {
@@ -17,41 +17,61 @@ Bevels::Bevels(QObject *parent) :
 	connect(this, &Bevels::radiusChanged, this, &AbstractImageOperation::hasBeenChanged);
 }
 
-int Bevels::doOperation(Magick::Image & image, ImageInfos * infos) const {
+int Bevels::doOperation(Image *image, ImageInfos * infos) const {
 
 
 	Q_UNUSED(infos);
 
-	image.matte(true);//set alpha if not present
+	ColorModel inModel = image->colorModel();
+	ColorModel outModel = addColorModelAlphaChannel(inModel);
 
-	Magick::Color white(std::numeric_limits<MagickCore::Quantum>::max(),
-					  std::numeric_limits<MagickCore::Quantum>::max(),
-					  std::numeric_limits<MagickCore::Quantum>::max());
-	Magick::Color black(0,0,0);
+	int verticalRadius = _radius;
+	int horizontalRadius = _radius;
 
-	Magick::Image bevelMask(Magick::Geometry(radius(), radius()), black);
-	bevelMask.type(Magick::GrayscaleType);
-	bevelMask.strokeWidth(0);
-	bevelMask.fillColor(white);
-	bevelMask.draw(Magick::DrawableCircle(0,0,radius(),0));
+	image->imageData() = std::visit([inModel, verticalRadius, horizontalRadius] (auto const& inData) -> Image::ImageData {
+		using ArrayT = std::decay_t<decltype(inData)>;
+		using ScalarT = typename ArrayT::ScalarT;
+		ImageArray<ScalarT> ret = addAlphaChannel(inData, inModel);
+		int alphaChannel = ret.shape()[2]-1;
 
-	Magick::Image alpha = image;
-	alpha.channel(Magick::AlphaChannel);
-	alpha.modifyImage();
-	alpha.negate();
+		for (int i = 0; i < std::min(verticalRadius, ret.shape()[0]); i++) {
 
-	ssize_t im_w = static_cast<ssize_t>(alpha.size().width());
-	ssize_t im_h = static_cast<ssize_t>(alpha.size().height());
+			for (int j = 0; j < std::min(horizontalRadius,ret.shape()[1]); j++) {
 
-	alpha.composite(bevelMask, im_w-radius(), im_h-radius(), Magick::MultiplyCompositeOp);
-	bevelMask.rotate(90);
-	alpha.composite(bevelMask, 0, im_h-radius(), Magick::MultiplyCompositeOp);
-	bevelMask.rotate(90);
-	alpha.composite(bevelMask, 0, 0, Magick::MultiplyCompositeOp);
-	bevelMask.rotate(90);
-	alpha.composite(bevelMask, im_w-radius(), 0, Magick::MultiplyCompositeOp);
+				float alphaMask = 0;
+				float count = 0;
 
-	image.composite(alpha, 0, 0, Magick::CopyOpacityCompositeOp);
+				for (int di = -1; di <= 1; di++) {
+					for (int dj = -1; dj <= 1; dj++) {
+						float radiusSqr = 0;
+						radiusSqr += float((i-verticalRadius)*(i-verticalRadius))/(verticalRadius*verticalRadius);
+						radiusSqr += float((j-horizontalRadius)*(j-horizontalRadius))/(horizontalRadius*horizontalRadius);
+
+						alphaMask += (radiusSqr < 1) ? 1 : 0;
+						count += 1;
+					}
+				}
+
+				alphaMask /= count;
+
+				if (alphaMask >= 0.9999) {
+					alphaMask = 1;
+				}
+
+				ret.at(i, j, alphaChannel) = alphaMask*float(typedWhiteLevel<ScalarT>());
+				ret.at(ret.shape()[0] - i - 1, j, alphaChannel) = alphaMask*float(typedWhiteLevel<ScalarT>());
+				ret.at(i, ret.shape()[1] - j - 1, alphaChannel) = alphaMask*float(typedWhiteLevel<ScalarT>());
+				ret.at(ret.shape()[0] - i - 1, ret.shape()[1] - j - 1, alphaChannel) = alphaMask*float(typedWhiteLevel<ScalarT>());
+
+			}
+
+		}
+
+		return ret;
+
+	}, image->imageData());
+
+	image->setColorModel(outModel);
 
 	return 0;
 

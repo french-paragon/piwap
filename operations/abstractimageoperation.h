@@ -1,6 +1,6 @@
 /*Piwap, or Picture Warping App, is a GUI to batch process images.
 
-Copyright (C) 2019  Paragon<french.paragon@gmail.com>
+Copyright (C) 2019-2024  Paragon<french.paragon@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include<math.h>
 using std::isnan;
-#include <Magick++/Image.h>
+#include "../image/image.h"
 
 #include "operations/operationerror.h"
 
@@ -51,7 +51,7 @@ public:
 	 * \param image The image the operation is applied onto.
 	 * \return 0 in case of sucess, an int > 0 in case of failure.
 	 */
-	virtual int doOperation(Magick::Image & image, ImageInfos * infos) const = 0;
+	virtual int doOperation(Image* image, ImageInfos * infos) const = 0;
 
 	virtual QString typeId() const = 0;
 

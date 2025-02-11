@@ -125,7 +125,7 @@ Reload::Reload(QObject *parent) : AbstractImageOperation(parent)
 	_p_checkpoints = new reloadCheckPointModel(this);
 }
 
-int Reload::doOperation(Magick::Image & image, ImageInfos * infos) const {
+int Reload::doOperation(Image *image, ImageInfos * infos) const {
 
 	if (!_checkpoint.isEmpty()) {
 
@@ -165,7 +165,7 @@ int Reload::doOperation(Magick::Image & image, ImageInfos * infos) const {
 
 	}
 
-	return reloadImage(image, infos);
+	return reloadImage(image->imageData(), infos);
 
 }
 

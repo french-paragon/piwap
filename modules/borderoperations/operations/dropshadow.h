@@ -24,7 +24,7 @@ public:
 
     DropShadow(QObject *parent = nullptr);
 
-    virtual int doOperation(Magick::Image & image, ImageInfos * infos) const;
+	virtual int doOperation(Image* image, ImageInfos * infos) const;
 
     virtual QString typeId() const;
 

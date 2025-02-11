@@ -31,6 +31,8 @@ class Resize : public AbstractInterpolatingOperation
 	Q_OBJECT
 public:
 
+	static std::optional<Image::ImageData> resize(Image::ImageData const& inData, QSize const& newSize, InterpolationMode interpolationMode);
+
 	static const QString resizeOpTypeId;
 
 	Q_PROPERTY(int pix_x READ pix_x WRITE setPix_x NOTIFY pix_x_changed)
@@ -50,7 +52,7 @@ public:
 
 	Q_ENUM(FitMode)
 
-	virtual int doOperation(Magick::Image & image, ImageInfos * infos) const;
+	virtual int doOperation(Image *image, ImageInfos * infos) const;
 
 	virtual QString typeId() const;
 

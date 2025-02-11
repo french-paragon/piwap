@@ -1,5 +1,7 @@
 #include "dropshadow.h"
 
+#include "operations/helper_functions/alphachannelsutils.h"
+
 namespace Piwap {
 namespace BorderOperations {
 
@@ -18,56 +20,98 @@ DropShadow::DropShadow(QObject *parent) :
 	connect(this, &DropShadow::bgChanged, this, &AbstractImageOperation::hasBeenChanged);
 }
 
-int DropShadow::doOperation(Magick::Image & image, ImageInfos * infos) const {
+int DropShadow::doOperation(Image *image, ImageInfos * infos) const {
 
-    Q_UNUSED(infos)
+	Q_UNUSED(infos)
 
-    Magick::Color white(std::numeric_limits<MagickCore::Quantum>::max(),
-                      std::numeric_limits<MagickCore::Quantum>::max(),
-                      std::numeric_limits<MagickCore::Quantum>::max());
+	ColorModel inModel = image->colorModel();
+	ColorModel outModel = addColorModelAlphaChannel(inModel);
 
-    Magick::Image alpha = image;
-    alpha.channel(Magick::AlphaChannel);
-    alpha.modifyImage();
+	image->imageData() = std::visit([inModel, this] (auto const& inData) -> Image::ImageData {
 
-    size_t f_radius = 2*((_blur_radius > 0.0) ? static_cast<size_t>(std::ceil(_blur_radius)) : 0);
+		using ArrayT = std::decay_t<decltype(inData)>;
+		using ScalarT = typename ArrayT::ScalarT;
 
-	ssize_t sdx = (_dx > static_cast<int>(f_radius)) ? _dx : static_cast<int>(f_radius);
-	ssize_t sdy = (_dy > static_cast<int>(f_radius)) ? _dy : static_cast<int>(f_radius);
+		ColorModel outModel = addColorModelAlphaChannel(inModel);
 
-	ssize_t idx = (_dx < static_cast<int>(f_radius)) ? static_cast<int>(f_radius)-_dx : 0;
-	ssize_t idy = (_dy < static_cast<int>(f_radius)) ? static_cast<int>(f_radius)-_dy : 0;
+		int inAlphaChannel = alphaChannelIndex(inModel);
+		int outAlphaChannel = alphaChannelIndex(outModel);
+		int nOutChannels = nChannels(outModel);
 
-	size_t nW = image.columns() + f_radius + static_cast<size_t>(std::max(static_cast<int>(f_radius),std::abs(_dx)));
-	size_t nH = image.rows() + f_radius + static_cast<size_t>(std::max(static_cast<int>(f_radius),std::abs(_dy)));
+		int expendRadius = std::ceil(_blur_radius);
 
-    alpha.extent(Magick::Geometry(nW, nH, -sdx, -sdy), white);
-    if (f_radius > 0) {
-        alpha.blur(f_radius, _blur_radius);
-    }
+		int dSizeX = std::max(0,_dx-expendRadius) + 2*expendRadius;
+		int dSizeY = std::max(0,_dy-expendRadius) + 2*expendRadius;
 
-    alpha.negate();
+		ImageArray<ScalarT> ret(inData.shape()[0]+dSizeY,inData.shape()[1]+dSizeX,nOutChannels);
 
-    int r = _bg.red();
-    int g = _bg.green();
-    int b = _bg.blue();
+		std::vector<ScalarT> bgCol = getChannelValueFromQColor<ScalarT>(outModel,_bg);
 
-    if (MAGICKCORE_QUANTUM_DEPTH == 16) {
-        r <<= 8;
-        g <<= 8;
-        b <<= 8;
-    }
+		for (int i = 0; i < ret.shape()[0]; i++) {
 
-    Magick::Color bg(static_cast<Magick::Quantum>(r), static_cast<Magick::Quantum>(g), static_cast<Magick::Quantum>(b));
+			int im_i = i - expendRadius + std::min(0,_dy);
+			int shade_i = im_i - _dy;
 
-    Magick::Image comp(Magick::Geometry(nW,nH), bg);
-    comp.depth(image.depth());
-    comp.composite(alpha, 0, 0, Magick::CopyOpacityCompositeOp);
-    comp.composite(image, idx, idy, Magick::OverCompositeOp);
+			int shadeDistI = (shade_i < 0) ? -shade_i : std::max(0, shade_i - inData.shape()[0]);
+			float shadeAttI = std::max<float>(0,_blur_radius-shadeDistI)/_blur_radius;
 
-    image = comp;
+			for (int j = 0; j < ret.shape()[1]; j++) {
 
-    return 0;
+				int im_j = j - expendRadius + std::min(0,_dx);
+				int shade_j = im_j - _dx;
+
+				int shadeDistJ = (shade_j < 0) ? -shade_j : std::max(0, shade_j - inData.shape()[1]);
+				float shadeAttJ = std::max<float>(0,_blur_radius-shadeDistI)/_blur_radius;
+
+				float shadeBlurAlphaCoeff = shadeAttI*shadeAttJ;
+
+				for (int c = 0; c < nOutChannels; c++) {
+					float fgAlpha = 0;
+
+					if (im_i >= 0 and im_i < inData.shape()[0] and im_j >= 0 and im_j < inData.shape()[1]) {
+
+						fgAlpha = float(typedWhiteLevel<ScalarT>());
+
+						if (inAlphaChannel >= 0 and inAlphaChannel < inData.shape()[2]) {
+							fgAlpha = inData.valueUnchecked(im_i,im_j,inAlphaChannel);
+						}
+					}
+
+					float fgAlphaCoeff = fgAlpha/float(typedWhiteLevel<ScalarT>());
+
+					if (c == outAlphaChannel) {
+						float alpha = shadeBlurAlphaCoeff*float(bgCol[c]);
+
+						if (im_i >= 0 and im_i < inData.shape()[0] and im_j >= 0 and im_j < inData.shape()[1]) {
+							alpha = alpha + fgAlpha - alpha * fgAlphaCoeff;
+						}
+
+						ret.atUnchecked(i,j,c) = alpha;
+					} else {
+
+						float val = bgCol[c];
+						float alpha = shadeBlurAlphaCoeff*float(bgCol[c]);
+
+						if (im_i >= 0 and im_i < inData.shape()[0] and im_j >= 0 and im_j < inData.shape()[1]) {
+							val = inData.valueUnchecked(im_i,im_j,inAlphaChannel) + alpha * val * (1-fgAlphaCoeff);
+						}
+
+						ret.atUnchecked(i,j,c) = val;
+
+					}
+				}
+
+			}
+
+		}
+
+		return ret;
+
+	}, image->imageData());
+
+	image->setColorModel(outModel);
+
+	return 0;
 }
 
 QString DropShadow::typeId() const {

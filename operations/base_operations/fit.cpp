@@ -22,7 +22,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <QMetaEnum>
 #include <QJsonObject>
 
-#include <Magick++/Color.h>
+#include "resize.h"
+#include "image/imageinfos.h"
+#include "image/color.h"
 
 namespace Piwap {
 namespace Operations {
@@ -42,7 +44,7 @@ Fit::Fit(QObject *parent) :
 	connect(this, &Fit::expandModeChanged, this, &AbstractImageOperation::hasBeenChanged);
 }
 
-int Fit::doOperation(Magick::Image &image, ImageInfos * infos) const {
+int Fit::doOperation(Image *image, ImageInfos * infos) const {
 
 	Q_UNUSED(infos);
 
@@ -53,7 +55,7 @@ int Fit::doOperation(Magick::Image &image, ImageInfos * infos) const {
 	int newWidth;
 	int newHeight;
 
-	float aspectRatio = static_cast<float>(image.size().width()) / static_cast<float>(image.size().height());
+	float aspectRatio = static_cast<float>(image->width()) / static_cast<float>(image->height());
 
 	float targetAspectRatio = static_cast<float>(_pix_x) / static_cast<float>(_pix_y);
 
@@ -84,25 +86,76 @@ int Fit::doOperation(Magick::Image &image, ImageInfos * infos) const {
 
 	}
 
-	image.filterType(static_cast<Magick::FilterTypes>(_interpolation_mode));
-	image.resize(Magick::Geometry(static_cast<size_t>(newWidth), static_cast<size_t>(newHeight)));
+
+
+	QSize newSize(static_cast<size_t>(newWidth), static_cast<size_t>(newHeight));
+
+	auto resizedOpt = Resize::resize(image->imageData(), newSize, _interpolation_mode);
+
+	if (!resizedOpt.has_value()) {
+		setError(infos->originalFileName(), "invalid resize operation");
+		return 1;
+	}
+
+	int nChannels = image->channels();
+
+	ColorModel imgColorModel = image->colorModel();
+	ColorModel outModel = removeColorModelAlphaChannel(imgColorModel);
+
+	int alphaChannel = alphaChannelIndex(imgColorModel);
 
 	if (newWidth < _pix_x || newHeight < _pix_y) {
 
-		int r = _bg.red();
-		int g = _bg.green();
-		int b = _bg.blue();
+		std::vector<float> color = getChannelValueFromQColor<float>(outModel, _bg);
 
-		if (MAGICKCORE_QUANTUM_DEPTH == 16) {
-			r <<= 8;
-			g <<= 8;
-			b <<= 8;
-		}
+		image->imageData() = std::visit([&color, this, newWidth, newHeight, nChannels, alphaChannel] (auto const& inData) -> Image::ImageData {
+			using MArrayT = std::decay_t<decltype(inData)>;
+			using ScalarT = typename MArrayT::ScalarT;
+			ImageArray<ScalarT> ret(_pix_y, _pix_x, nChannels);
 
+			std::vector<ScalarT> convertedColor(nChannels);
 
-		Magick::Color bg(static_cast<Magick::Quantum>(r), static_cast<Magick::Quantum>(g), static_cast<Magick::Quantum>(b));
+			for (int c = 0; c < nChannels; c++) {
+				convertedColor[c] = convertTypedWhiteLevel<ScalarT>(color[std::max<size_t>(c, color.size()-1)]);
+			}
 
-		image.extent(Magick::Geometry(static_cast<size_t>(_pix_x), static_cast<size_t>(_pix_y)), bg, Magick::CenterGravity);
+			int di = (_pix_y - newHeight) / 2;
+			int dj = (_pix_x - newWidth) / 2;
+
+			for (int i = 0; i < _pix_y; i++) {
+				for (int j = 0; j < _pix_x; j++) {
+					for (int c = 0; c < nChannels; c++) {
+
+						if (c == alphaChannel) {
+							continue;
+						}
+
+						int channel = c;
+						if (c > alphaChannel) {
+							channel -= 1;
+						}
+
+						ScalarT val = convertedColor[channel];
+
+						if (i >= di and i - di < newHeight) {
+							if (j >= dj and j - dj < newWidth) {
+								ScalarT in = inData.valueUnchecked(i-di,j-dj,c);
+								val = in;
+
+								if (alphaChannel >= 0 and alphaChannel < inData.shape()[2]) {
+									float alphaCoeff = float(inData.valueUnchecked(i-di,j-dj,alphaChannel))/float(typedWhiteLevel<ScalarT>());
+									val = in*alphaCoeff + convertedColor[channel]*(1-alphaCoeff);
+								}
+							}
+						}
+
+						ret.atUnchecked(i,j,channel) = val;
+					}
+				}
+			}
+
+			return ret;
+		}, resizedOpt.value());
 
 	}
 
