@@ -95,6 +95,6 @@ add_subdirectory(icons)
 add_subdirectory(modules)
 
 #install
-install (TARGETS ${PROG_NAME} DESTINATION usr/bin)
-install (FILES ${CMAKE_CURRENT_SOURCE_DIR}/application/operationplugin.h DESTINATION usr/include/piwap)
-install (FILES desktops/Piwap.desktop DESTINATION usr/share/applications)
+install (TARGETS ${PROG_NAME} DESTINATION bin)
+install (FILES ${CMAKE_CURRENT_SOURCE_DIR}/application/operationplugin.h DESTINATION  include/piwap)
+install (FILES desktops/Piwap.desktop DESTINATION share/applications)
