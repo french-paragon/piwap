@@ -71,7 +71,7 @@ public:
 
 			if constexpr (interpolatorMode == Linear) {
 
-				T ret = 0;
+				float ret = 0;
 
 				int c = std::clamp<int>(std::round(coordinate[2]),0,imgData.shape()[2]-1);
 
@@ -91,12 +91,12 @@ public:
 					}
 				}
 
-				return ret;
+				return T(ret);
 			}
 
 			if constexpr (interpolatorMode == Area) {
 
-				T ret = 0;
+				float ret = 0;
 
 				int c = std::clamp<int>(std::round(coordinate[2]),0,imgData.shape()[2]-1);
 
@@ -126,7 +126,7 @@ public:
 					}
 				}
 
-				return ret;
+				return T(ret);
 			}
 
 			if constexpr (interpolatorMode == Cubic) {
@@ -142,7 +142,7 @@ public:
 					return 0;
 				};
 
-				T ret = 0;
+				float ret = 0;
 
 				int c = std::clamp<int>(std::round(coordinate[2]),0,imgData.shape()[2]-1);
 
@@ -155,8 +155,8 @@ public:
 						int i0 = std::floor(coordinate[0] + di);
 						int j0 = std::floor(coordinate[1] + dj);
 
-						int xi = i0 - coordinate[0];
-						int xj = j0 - coordinate[1];
+						float xi = i0 - coordinate[0];
+						float xj = j0 - coordinate[1];
 
 						int i = std::clamp<int>(i0,0,imgData.shape()[0]-1);
 						int j = std::clamp<int>(j0,0,imgData.shape()[1]-1);
@@ -167,7 +167,15 @@ public:
 					}
 				}
 
-				return ret;
+				if (ret < 0) {
+					ret = 0;
+				}
+
+				if (ret > typedWhiteLevel<T>()) {
+					ret = typedWhiteLevel<T>();
+				}
+
+				return T(ret);
 			}
 
 			if constexpr (interpolatorMode == Lanczos) {
@@ -183,7 +191,7 @@ public:
 					return 0;
 				};
 
-				T ret = 0;
+				float ret = 0;
 
 				int c = std::clamp<int>(std::round(coordinate[2]),0,imgData.shape()[2]-1);
 
@@ -196,8 +204,8 @@ public:
 						int i0 = std::floor(coordinate[0] + di);
 						int j0 = std::floor(coordinate[1] + dj);
 
-						int xi = i0 - coordinate[0];
-						int xj = j0 - coordinate[1];
+						float xi = i0 - coordinate[0];
+						float xj = j0 - coordinate[1];
 
 						int i = std::clamp<int>(i0,0,imgData.shape()[0]-1);
 						int j = std::clamp<int>(j0,0,imgData.shape()[1]-1);
@@ -208,7 +216,15 @@ public:
 					}
 				}
 
-				return ret;
+				if (ret < 0) {
+					ret = 0;
+				}
+
+				if (ret > typedWhiteLevel<T>()) {
+					ret = typedWhiteLevel<T>();
+				}
+
+				return T(ret);
 			}
 
 			return T();
