@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "operations/abstractimageoperation.h"
 #include "operations/abstractoperationfactory.h"
 
+#include <optional>
 
 namespace Piwap {
 namespace Operations {

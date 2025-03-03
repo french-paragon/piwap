@@ -23,6 +23,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "operations/abstractoperationfactory.h"
 #include "operations/base_operations/abstractinterpolatingoperation.h"
 
+#include <optional>
+
 namespace Piwap {
 namespace Operations {
 
