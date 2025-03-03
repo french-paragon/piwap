@@ -1,10 +1,12 @@
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 3.0)
 project(piwap)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_SHARED_MODULE_PREFIX "")
+
+set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
 
 #Qt
 
@@ -85,7 +87,7 @@ target_link_libraries(${PROG_NAME} ${LZIP})
 target_link_libraries(${PROG_NAME} JPEG::JPEG)
 target_link_libraries(${PROG_NAME} PNG::PNG)
 target_link_libraries(${PROG_NAME} TIFF::TIFF)
-target_link_libraries(${PROG_NAME} PRIVATE exiv2)
+target_link_libraries(${PROG_NAME} exiv2)
 
 #target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} )
