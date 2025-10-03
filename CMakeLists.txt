@@ -8,6 +8,18 @@ set(CMAKE_SHARED_MODULE_PREFIX "")
 
 set(CMAKE_EXECUTE_PROCESS_COMMAND_ECHO STDOUT)
 
+include(FetchContent)
+
+#MultidimArrays
+
+FetchContent_Declare(
+  MultidimArrays
+  GIT_REPOSITORY https://github.com/french-paragon/MultidimArrays.git
+  GIT_TAG 6b816b3b0ab8f1a484cfa695daa9f64f11ea2348
+  FIND_PACKAGE_ARGS
+)
+FetchContent_MakeAvailable(MultidimArrays)
+
 #Qt
 
 find_package(Qt5Core REQUIRED)
@@ -90,7 +102,7 @@ target_link_libraries(${PROG_NAME} TIFF::TIFF)
 target_link_libraries(${PROG_NAME} exiv2)
 
 #target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )
-target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} )
+target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} MultidimArrays::MultidimArrays)
 
 #icons processing
 add_subdirectory(icons)
