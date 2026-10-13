@@ -88,11 +88,30 @@ public:
 	template<typename T>
 	static inline constexpr bool imageDataHoldsType(ImageData const& data) {
 		return std::holds_alternative<ImageArray<T>>(data);
-	}
+    }
 
-	inline static std::array<int,3> imageDataShape(Image::ImageData const& imgData) {
-		return std::visit([] (auto const& inData) -> std::array<int,3> {return inData.shape();}, imgData);
-	}
+    inline static std::array<int,3> imageDataShape(Image::ImageData const& imgData) {
+        return std::visit([] (auto const& inData) -> std::array<int,3> {return inData.shape();}, imgData);
+    }
+
+    inline static bool imageDataIsEmpty(Image::ImageData const& imgData) {
+        auto shape = imageDataShape(imgData);
+        if (shape.size() <= 0) {
+            return true;
+        }
+        for (int s : shape) {
+            if (s == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    template<typename T_out, typename T_in>
+    static inline T_out cast_imgdata_scalar_to_type(T_in const& inData) {
+        return float(inData)/typedWhiteLevel<T_in>() * typedWhiteLevel<T_out>();
+    }
+
 	template<typename T>
 	static inline ImageArray<T> cast_imgdata_to_type(ImageData const& imgData) {
 		return std::visit([] (auto const& inData) -> ImageArray<T> {
@@ -103,7 +122,7 @@ public:
 			for (int i = 0; i < ret.shape()[0]; i++) {
 				for (int j = 0; j < ret.shape()[1]; j++) {
 					for (int c = 0; c < ret.shape()[2]; c++) {
-						ret.atUnchecked(i,j,c) = float(inData.valueUnchecked(i,j,c))/typedWhiteLevel<ScalarT>() * typedWhiteLevel<T>();
+                        ret.atUnchecked(i,j,c) = cast_imgdata_scalar_to_type<T, ScalarT>(inData.valueUnchecked(i,j,c));
 					}
 				}
 			}

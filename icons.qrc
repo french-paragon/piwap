@@ -17,5 +17,6 @@
         <file>icons/color_bg.svg</file>
         <file>icons/warning.svg</file>
         <file>icons/crop_image.svg</file>
+        <file>icons/stamp_image.svg</file>
     </qresource>
 </RCC>

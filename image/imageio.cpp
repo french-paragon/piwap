@@ -502,7 +502,7 @@ ImageWithInfos openImage(const char* fileName, QObject *imgParent, QObject *info
 
 	ImageInfos* infos = new ImageInfos(fName, infoParent);
 
-	return {nullptr, nullptr};
+    return {.image=nullptr, .infos = infos};
 
 }
 

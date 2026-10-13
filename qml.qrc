@@ -17,5 +17,6 @@
         <file>qmlcomponents/editors/CheckpointOpEditor.qml</file>
         <file>qmlcomponents/editors/BackgroundOpEditor.qml</file>
         <file>qmlcomponents/editors/CropOpEditor.qml</file>
+        <file>qmlcomponents/editors/WatermarkOpEditor.qml</file>
     </qresource>
 </RCC>

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(piwap)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_SHARED_MODULE_PREFIX "")
@@ -75,11 +75,13 @@ set(PROG_SRC main.cpp
 			 operations/operationfactorymanager.cpp
 			 operations/operationlistmanager.cpp
 			 operations/base_operations/abstractinterpolatingoperation.cpp
+                         operations/base_operations/abstractcompositeoperation.cpp
 			 operations/base_operations/fit.cpp
 			 operations/base_operations/crop.cpp
 			 operations/base_operations/reload.cpp
 			 operations/base_operations/checkpoint.cpp
-			 operations/base_operations/backgroundcolor.cpp
+                         operations/base_operations/backgroundcolor.cpp
+                         operations/base_operations/watermark.cpp
 			 operations/operationerror.cpp
 			 operations/helper_functions/alphachannelsutils.cpp
 			 operations/base_operations/resize.cpp

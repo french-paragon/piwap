@@ -34,6 +34,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "operations/base_operations/reload.h"
 #include "operations/base_operations/checkpoint.h"
 #include "operations/base_operations/backgroundcolor.h"
+#include "operations/base_operations/watermark.h"
 
 #include <QUrl>
 #include <QJsonObject>
@@ -432,8 +433,9 @@ void Application::loadOperationsFactories() {
 	_operationFactoryManager->insertFactory(new Operations::CropOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::BackgroundOpFactory(this));
 	_operationFactoryManager->insertFactory(new Operations::CheckpointOpFactory(this));
-	_operationFactoryManager->insertFactory(new Operations::ReloadOpFactory(this));
-	_operationFactoryManager->insertFactory(new Operations::SaveOpFactory(this));
+    _operationFactoryManager->insertFactory(new Operations::WatermarkOpFactory(this));
+    _operationFactoryManager->insertFactory(new Operations::ReloadOpFactory(this));
+    _operationFactoryManager->insertFactory(new Operations::SaveOpFactory(this));
 
 }
 

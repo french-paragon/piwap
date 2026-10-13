@@ -47,7 +47,7 @@ public:
 	virtual ~AbstractImageOperation();
 
 	/*!
-	 * \brief doOperation perform the image operation on a Magick::Image
+     * \brief doOperation perform the image operation on an Image
 	 * \param image The image the operation is applied onto.
 	 * \return 0 in case of sucess, an int > 0 in case of failure.
 	 */
