@@ -105,10 +105,8 @@ target_link_libraries(${MAIN_LIB_NAME} JPEG::JPEG)
 target_link_libraries(${MAIN_LIB_NAME} PNG::PNG)
 target_link_libraries(${MAIN_LIB_NAME} TIFF::TIFF)
 target_link_libraries(${MAIN_LIB_NAME} exiv2)
+target_link_libraries(${MAIN_LIB_NAME} ${ImageMagick_LIBRARIES} MultidimArrays::MultidimArrays)
 target_link_libraries(${PROG_NAME} ${MAIN_LIB_NAME})
-
-#target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )
-target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} MultidimArrays::MultidimArrays)
 
 #icons processing
 add_subdirectory(icons)
