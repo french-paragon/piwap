@@ -24,7 +24,7 @@ namespace Piwap {
 namespace Operations {
 
 template<typename T_up, typename T_down>
-T_down blendScalar(T_up p_up, T_down p_down, float rate, AbstractCompositeOperation::BlendingMode bMode) {
+T_down blendScalar(T_up p_up, T_down p_down, float rate, float alphaBelow, AbstractCompositeOperation::BlendingMode bMode) {
 
     float up = Image::cast_imgdata_scalar_to_type<float>(p_up);
     float down = Image::cast_imgdata_scalar_to_type<float>(p_down);
@@ -69,7 +69,7 @@ T_down blendScalar(T_up p_up, T_down p_down, float rate, AbstractCompositeOperat
 
     comp = std::min<float>(1, std::max<float>(comp, 0));
 
-    comp = rate*comp + (1-rate)*down;
+    comp = rate*comp + (1-rate)*(alphaBelow*down + (1-alphaBelow)*up);
 
     return Image::cast_imgdata_scalar_to_type<T_down>(comp);
 
@@ -131,7 +131,7 @@ std::optional<Image::ImageData> AbstractCompositeOperation::blend(Image::ImageDa
 
         return std::visit([&below, &upIdxDelta, aboveColorModel, belowColorModel, rate, blendingMode] (auto const& above) -> Image::ImageData {
 
-            using AboveScalarT = typename std::remove_reference<decltype(below)>::type::ScalarT;
+            using AboveScalarT = typename std::remove_reference<decltype(above)>::type::ScalarT;
 
             ImageArray<BelowScalarT> composed(below.shape());
 
@@ -195,29 +195,31 @@ std::optional<Image::ImageData> AbstractCompositeOperation::blend(Image::ImageDa
                     }
 
                     if (alpha_idx >= 0) {
-                        alpha = below.valueUnchecked(i,j,alpha_idx);
+                        alpha = Image::cast_imgdata_scalar_to_type<float>(below.valueUnchecked(i,j,alpha_idx));
                     }
 
-                    if (alpha_idx >= 0) {
-                        alpha_above = above.valueUnchecked(i_abv,j_abv,alpha_idx);
+                    if (alpha_above_idx >= 0) {
+                        alpha_above = Image::cast_imgdata_scalar_to_type<float>(above.valueUnchecked(i_abv,j_abv,alpha_above_idx));
                     }
 
-                    float convertedAlpha = std::min<float>(alpha+alpha_above,1);
+                    float alpha_compose = rate*alpha_above;
+
+                    float convertedAlpha = std::min<float>(alpha_compose + alpha*(1-alpha_compose),1);
 
                     if (alpha_idx >= 0) {
                         composed.atUnchecked(i,j,alpha_idx) = Image::cast_imgdata_scalar_to_type<BelowScalarT>(convertedAlpha);
                     }
 
-                    float local_rate = alpha_above*rate;
+                    float local_rate = alpha_compose;
 
                     for (int k = 0; k < channels.size(); k++) {
                         int c = channels[k];
                         int c_abv = channels_above[k];
 
                         BelowScalarT s_below = below.valueUnchecked(i,j,c);
-                        AboveScalarT s_above = above.valueUnchecked(i_abv,j_abv,alpha_idx);
+                        AboveScalarT s_above = above.valueUnchecked(i_abv,j_abv,c_abv);
 
-                        composed.atUnchecked(i,j,c) = blendScalar(s_above, s_below, local_rate, blendingMode);
+                        composed.atUnchecked(i,j,c) = blendScalar(s_above, s_below, local_rate, alpha, blendingMode);
                     }
                 }
             }
