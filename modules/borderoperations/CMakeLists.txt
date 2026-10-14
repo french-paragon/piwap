@@ -8,8 +8,9 @@ set(PLUGIN_SRC plugin.cpp
 
 add_library(${PLUGIN_NAME} MODULE ${PLUGIN_SRC})
 
+target_link_libraries(${PLUGIN_NAME} ${MAIN_LIB_NAME})
 target_link_libraries(${PLUGIN_NAME} Qt5::Core)
 target_link_libraries(${PLUGIN_NAME} Qt5::Gui)
 target_link_libraries(${PLUGIN_NAME} MultidimArrays::MultidimArrays)
 
-install (TARGETS ${PLUGIN_NAME} DESTINATION usr/lib/piwap/modules)
+install (TARGETS ${PLUGIN_NAME} DESTINATION lib/piwap/modules)

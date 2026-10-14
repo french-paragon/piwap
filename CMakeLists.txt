@@ -65,43 +65,47 @@ set(BUILD_SHARED_LIBS ON)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(PROG_NAME ${CMAKE_PROJECT_NAME})
-set(PROG_SRC main.cpp
-	         image/image.cpp
-			 image/imageinfos.cpp
-			 image/imagetotreatmanager.cpp
-			 image/imageio.cpp
-	         operations/abstractimageoperation.cpp
-			 operations/abstractoperationfactory.cpp
-			 operations/operationfactorymanager.cpp
-			 operations/operationlistmanager.cpp
-			 operations/base_operations/abstractinterpolatingoperation.cpp
-                         operations/base_operations/abstractcompositeoperation.cpp
-			 operations/base_operations/fit.cpp
-			 operations/base_operations/crop.cpp
-			 operations/base_operations/reload.cpp
-			 operations/base_operations/checkpoint.cpp
-                         operations/base_operations/backgroundcolor.cpp
-                         operations/base_operations/watermark.cpp
-			 operations/operationerror.cpp
-			 operations/helper_functions/alphachannelsutils.cpp
-			 operations/base_operations/resize.cpp
-			 operations/base_operations/save.cpp
-			 application/application.cpp
-			 application/operationplugin.cpp
-			 icons.qrc
-			 qml.qrc)
+set(MAIN_LIB_NAME "${CMAKE_PROJECT_NAME}Core")
+set(PROG_SRC main.cpp)
+set(LIB_SRC
+    image/image.cpp
+    image/imageinfos.cpp
+    image/imagetotreatmanager.cpp
+    image/imageio.cpp
+    operations/abstractimageoperation.cpp
+    operations/abstractoperationfactory.cpp
+    operations/operationfactorymanager.cpp
+    operations/operationlistmanager.cpp
+    operations/base_operations/abstractinterpolatingoperation.cpp
+    operations/base_operations/abstractcompositeoperation.cpp
+    operations/base_operations/fit.cpp
+    operations/base_operations/crop.cpp
+    operations/base_operations/reload.cpp
+    operations/base_operations/checkpoint.cpp
+    operations/base_operations/backgroundcolor.cpp
+    operations/base_operations/watermark.cpp
+    operations/operationerror.cpp
+    operations/helper_functions/alphachannelsutils.cpp
+    operations/base_operations/resize.cpp
+    operations/base_operations/save.cpp
+    application/application.cpp
+    application/operationplugin.cpp
+    icons.qrc
+    qml.qrc)
 
+add_library(${MAIN_LIB_NAME} ${LIB_SRC})
 add_executable(${PROG_NAME} ${PROG_SRC})
 
-target_link_libraries(${PROG_NAME} Qt5::Core)
-target_link_libraries(${PROG_NAME} Qt5::QuickWidgets)
-target_link_libraries(${PROG_NAME} Qt5::Qml)
-target_link_libraries(${PROG_NAME} Qt5::Svg)
-target_link_libraries(${PROG_NAME} ${LZIP})
-target_link_libraries(${PROG_NAME} JPEG::JPEG)
-target_link_libraries(${PROG_NAME} PNG::PNG)
-target_link_libraries(${PROG_NAME} TIFF::TIFF)
-target_link_libraries(${PROG_NAME} exiv2)
+target_link_libraries(${MAIN_LIB_NAME} Qt5::Core)
+target_link_libraries(${MAIN_LIB_NAME} Qt5::QuickWidgets)
+target_link_libraries(${MAIN_LIB_NAME} Qt5::Qml)
+target_link_libraries(${MAIN_LIB_NAME} Qt5::Svg)
+target_link_libraries(${MAIN_LIB_NAME} ${LZIP})
+target_link_libraries(${MAIN_LIB_NAME} JPEG::JPEG)
+target_link_libraries(${MAIN_LIB_NAME} PNG::PNG)
+target_link_libraries(${MAIN_LIB_NAME} TIFF::TIFF)
+target_link_libraries(${MAIN_LIB_NAME} exiv2)
+target_link_libraries(${PROG_NAME} ${MAIN_LIB_NAME})
 
 #target_link_libraries(${PROG_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${PROG_NAME} ${ImageMagick_LIBRARIES} MultidimArrays::MultidimArrays)
@@ -111,6 +115,7 @@ add_subdirectory(icons)
 add_subdirectory(modules)
 
 #install
+install (TARGETS ${MAIN_LIB_NAME} DESTINATION lib)
 install (TARGETS ${PROG_NAME} DESTINATION bin)
 install (FILES ${CMAKE_CURRENT_SOURCE_DIR}/application/operationplugin.h DESTINATION  include/piwap)
 install (FILES desktops/Piwap.desktop DESTINATION share/applications)

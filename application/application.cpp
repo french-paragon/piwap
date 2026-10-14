@@ -401,10 +401,17 @@ void Application::searchPlugins() {
 
 bool Application::loadOperationPlugin(QString const& path) {
 
+    QTextStream err(stderr);
+
 	QPluginLoader* plugin = new QPluginLoader(path, this);
 	plugin->load();
 
 	if (plugin->instance() == nullptr) {
+
+        QString error_string = plugin->errorString();
+
+        err << "Error loading plugin at " << path << ": " << error_string << Qt::endl;
+
 		delete plugin;
 		return false;
 	}
