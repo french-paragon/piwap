@@ -58,6 +58,8 @@ ColumnLayout {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("New name of the file")
 
+        selectByMouse: true
+
     }
 
     Text {
@@ -79,6 +81,8 @@ ColumnLayout {
 
         ToolTip.visible: hovered
         ToolTip.text: qsTr("File extension (type will be deduced from it)")
+
+        selectByMouse: true
 
     }
 

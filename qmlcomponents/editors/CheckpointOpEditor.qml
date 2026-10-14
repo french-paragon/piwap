@@ -37,6 +37,8 @@ GridLayout {
             }
         }
 
+        selectByMouse: true
+
     }
 
     onOperationChanged: {

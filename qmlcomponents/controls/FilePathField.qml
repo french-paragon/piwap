@@ -27,6 +27,7 @@ Item {
         ToolTip.visible: hovered
         ToolTip.text: dialog.selectFolder ? qsTr("Select a folder") : ((dialog.selectExisting) ? qsTr("Select an existing file") : qsTr("Select a file"));
 
+        selectByMouse: true
     }
 
     Button {
