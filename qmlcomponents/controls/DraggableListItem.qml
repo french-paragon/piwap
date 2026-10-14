@@ -46,11 +46,12 @@ Item {
             onReleased: {
                 if (drag.active) {
                     emitMoveItemRequested();
+                } else {
+                    root.itemClicked();
                 }
             }
 
             onPressed: {
-                root.itemClicked();
             }
         }
     }

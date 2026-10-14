@@ -125,6 +125,7 @@ SwipeView {
                             piwapp.addOpToProject(selectedTypeId);
 
                             actionManagement.currentIndex = 1;
+                            actionListView.currentIndex = actionListView.count-1;
                         }
 
                         ToolTip.visible: hovered
