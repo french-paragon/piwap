@@ -578,7 +578,7 @@ bool writeImage(const char* fileName, Image* image, ImageInfos* infos, bool save
 				storage = Magick::StorageType::ShortPixel;
 			}
 			if (Image::imageDataHoldsType<uint32_t>(image->imageData())) {
-				storage = Magick::StorageType::IntegerPixel;
+                storage = Magick::StorageType::LongPixel; //integerpixel has been depreciated TODO: check if this is an issue.
 			}
 			if (Image::imageDataHoldsType<float>(image->imageData())) {
 				storage = Magick::StorageType::FloatPixel;
