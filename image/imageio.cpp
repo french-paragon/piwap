@@ -24,7 +24,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include<math.h>
 using std::isnan;
 #include <jpeglib.h>
-#include <jpegint.h>
 
 #include <png.h>
 
