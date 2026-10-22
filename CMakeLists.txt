@@ -14,7 +14,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   MultidimArrays
-  GIT_REPOSITORY https://github.com/french-paragon/MultidimArrays.git
+  GIT_REPOSITORY https://github.com/french-paragon/MultidimArrays
   GIT_TAG 6b816b3b0ab8f1a484cfa695daa9f64f11ea2348
   FIND_PACKAGE_ARGS
 )
