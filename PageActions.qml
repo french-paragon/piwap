@@ -30,6 +30,10 @@ SwipeView {
                 spacing: 5
                 Layout.margins: 15
 
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AlwaysOn
+                }
+
                 model: piwapp.operationFactoryManager
 
                 Component {
@@ -167,6 +171,10 @@ SwipeView {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.margins: 15
+
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AsNeeded
+                }
 
                 model: piwapp.operations
 

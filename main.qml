@@ -90,18 +90,12 @@ ApplicationWindow {
 			id: backgroundRect
 			color: "#999999"
 			implicitWidth: 40
-			implicitHeight: toolBar.icons_size + 15
+            implicitHeight: toolBar.icons_size + 15
 		}
 
-		Rectangle {
-			color: "#f4a649"
-			width: parent.width
-			height: 3
-			anchors.bottom: parent.bottom
-			z: 99
-		}
 
 		RowLayout {
+            id: buttonsLayout
 			anchors.fill: parent
 
 			HoverableToolButton {
@@ -423,6 +417,15 @@ ApplicationWindow {
 			}
 
 		}
+
+        Rectangle {
+            id: lineDeco
+            color: "#f4a649"
+            width: buttonsLayout.width
+            height: 3
+            anchors.bottom: buttonsLayout.bottom
+            z: 99
+        }
 	}
 
 	SwipeView {

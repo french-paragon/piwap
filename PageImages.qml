@@ -48,6 +48,10 @@ SwipeView {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AsNeeded
+                }
+
                 model: piwapp.images
 
                 spacing: 0
@@ -153,6 +157,10 @@ SwipeView {
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AsNeeded
+                }
 
                 model: piwapp.errors
 
