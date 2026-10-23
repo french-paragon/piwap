@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 int main(int argc, char *argv[])
 {
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    qputenv("QT_QUICK_CONTROLS_STYLE", "Basic"); //prevent system theme to mess with the display
 	Piwap::Application app(argc, argv);
 	app.setWindowIcon(QIcon(":/icons/logo.svg"));
 

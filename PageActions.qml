@@ -296,4 +296,8 @@ SwipeView {
         }
 
     }
+
+    Component.onCompleted: {
+        currentIndex = 1;
+    }
 }

@@ -93,10 +93,15 @@ ApplicationWindow {
             implicitHeight: toolBar.icons_size + 15
 		}
 
+        padding: 0
+        topPadding: 0
+        bottomPadding: 0
+        leftPadding: 0
+        rightPadding: 0
 
 		RowLayout {
             id: buttonsLayout
-			anchors.fill: parent
+            anchors.fill: parent
 
 			HoverableToolButton {
 
@@ -550,5 +555,5 @@ ApplicationWindow {
 		}
 
 
-	}
+    }
 }
