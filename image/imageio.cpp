@@ -482,7 +482,7 @@ ImageWithInfos openImage(const char* fileName, QObject *imgParent, QObject *info
 			int height = img.size().height();
 			int width = img.size().width();
 
-			ImageArray<uint8_t> imgArray(height,width,3);
+            ImageArray<uint8_t> imgArray(height,width,4);
 
 			img.write(0, 0, width, height, "RGBA", Magick::StorageType::CharPixel, &imgArray.at(0,0,0));
 
