@@ -40,6 +40,7 @@ set(CMAKE_AUTORCC ON)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
 find_package(TIFF REQUIRED)
+find_package(WebP)
 
 find_package(ImageMagick REQUIRED COMPONENTS Magick++ MagickCore)
 
@@ -106,6 +107,12 @@ target_link_libraries(${MAIN_LIB_NAME} PNG::PNG)
 target_link_libraries(${MAIN_LIB_NAME} TIFF::TIFF)
 target_link_libraries(${MAIN_LIB_NAME} exiv2lib)
 target_link_libraries(${MAIN_LIB_NAME} ${ImageMagick_LIBRARIES} MultidimArrays::MultidimArrays)
+
+if (WebP_FOUND)
+    target_link_libraries(${MAIN_LIB_NAME} WebP::webp)
+    target_compile_definitions(${MAIN_LIB_NAME} PRIVATE USE_NATIVE_LIBWEBP)
+endif(WebP_FOUND)
+
 target_link_libraries(${PROG_NAME} ${MAIN_LIB_NAME})
 
 #icons processing

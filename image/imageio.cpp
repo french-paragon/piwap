@@ -33,6 +33,11 @@ using std::isnan;
 #include <stdio.h>
 #include <zip.h>
 
+#ifdef USE_NATIVE_LIBWEBP
+#include <webp/decode.h>
+#include <fstream>
+#endif
+
 #define MAGICKCORE_QUANTUM_DEPTH 8
 #define MAGICKCORE_HDRI_ENABLE 0
 
@@ -461,6 +466,88 @@ bool writeJpgFile(const char* file, Image* image, ImageInfos* infos) {
 	return true;
 }
 
+#ifdef USE_NATIVE_LIBWEBP
+ImageWithInfos readWebPFile(const char* file, QObject *imgParent, QObject *infoParent) {
+
+    std::ifstream fileStream(file, std::ios::binary | std::ios::ate);
+    if (!fileStream.is_open()) {
+        return ImageWithInfos{nullptr, nullptr};
+    }
+
+    std::streamsize file_size = fileStream.tellg();
+    fileStream.seekg(0, std::ios::beg);
+
+    std::vector<uint8_t> buffer(file_size);
+    if (!fileStream.read(reinterpret_cast<char*>(buffer.data()), file_size)) {
+        return ImageWithInfos{nullptr, nullptr};
+    }
+
+    WebPBitstreamFeatures features;
+
+    VP8StatusCode status = WebPGetFeatures(buffer.data(), file_size, &features);
+
+    if (status != VP8_STATUS_OK) {
+        return ImageWithInfos{nullptr, nullptr};
+    }
+
+    int width = 0;
+    int height = 0;
+    if (!WebPGetInfo(buffer.data(), buffer.size(), &width, &height)) {
+        ImageWithInfos{nullptr, nullptr};
+    }
+
+    int nChannels = 3;
+    ColorModel colorInfos = ColorModel::RGB;
+
+    if (features.has_alpha != 0) {
+        nChannels = 4;
+        colorInfos = ColorModel::RGBA;
+    }
+
+    //shape of the image
+    std::array<int,3> shape = {height,
+                               width,
+                               nChannels};
+
+    ImageArray<uint8_t> data(shape);
+
+    uint8_t* webp_data;
+
+    if (features.has_alpha != 0) {
+        webp_data = WebPDecodeRGBA(buffer.data(), buffer.size(), &width, &height);
+        if (webp_data == nullptr) {
+            return ImageWithInfos{nullptr, nullptr};
+        }
+    } else {
+        webp_data = WebPDecodeRGB(buffer.data(), buffer.size(), &width, &height);
+        if (webp_data == nullptr) {
+            return ImageWithInfos{nullptr, nullptr};
+        }
+    }
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            for (int c = 0; c < nChannels; c++) {
+                data.atUnchecked(i,j,c) = webp_data[i*width*nChannels + j*nChannels + c];
+            }
+        }
+    }
+
+    WebPFree(webp_data);
+
+    ImageWithInfos ret;
+
+    ret.image = new Image(imgParent);
+    ret.image->imageData() = data;
+
+    ret.image->setColorModel(colorInfos);
+    ret.infos = new ImageInfos(file, infoParent);
+
+    return ret;
+}
+#endif
+
+
 ImageWithInfos openImage(const char* fileName, QObject *imgParent, QObject *infoParent) {
 
 	QString fName(fileName);
@@ -469,9 +556,16 @@ ImageWithInfos openImage(const char* fileName, QObject *imgParent, QObject *info
 		return openKraOraFile(fileName, imgParent, infoParent);
 	} else if (fName.endsWith(".png", Qt::CaseInsensitive)) {
 		return readPngFile(fileName, imgParent, infoParent);
-	} else if (fName.endsWith(".jpg", Qt::CaseInsensitive) || fName.endsWith(".jpeg", Qt::CaseInsensitive)) {
-		return readJpgFile(fileName, imgParent, infoParent);
-	} else {
+    } else if (fName.endsWith(".jpg", Qt::CaseInsensitive) || fName.endsWith(".jpeg", Qt::CaseInsensitive)) {
+        return readJpgFile(fileName, imgParent, infoParent);
+    }
+#ifdef USE_NATIVE_LIBWEBP
+    else if (fName.endsWith(".webp", Qt::CaseInsensitive)) {
+        return readWebPFile(fileName, imgParent, infoParent);
+    }
+#endif
+
+    else {
 		//By default use imagemagick
 		ImageWithInfos ret;
 		ret.image = new Image(imgParent);
