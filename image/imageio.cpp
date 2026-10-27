@@ -35,6 +35,7 @@ using std::isnan;
 
 #ifdef USE_NATIVE_LIBWEBP
 #include <webp/decode.h>
+#include <webp/encode.h>
 #include <fstream>
 #endif
 
@@ -493,7 +494,7 @@ ImageWithInfos readWebPFile(const char* file, QObject *imgParent, QObject *infoP
     int width = 0;
     int height = 0;
     if (!WebPGetInfo(buffer.data(), buffer.size(), &width, &height)) {
-        ImageWithInfos{nullptr, nullptr};
+        return ImageWithInfos{nullptr, nullptr};
     }
 
     int nChannels = 3;
@@ -544,6 +545,109 @@ ImageWithInfos readWebPFile(const char* file, QObject *imgParent, QObject *infoP
     ret.infos = new ImageInfos(file, infoParent);
 
     return ret;
+}
+
+bool writeWebPFile(const char* file, Image* image, ImageInfos* infos) {
+
+    ImageArray<uint8_t> data = Image::cast_imgdata_to_type<uint8_t>(image->imageData()); //convert image and set strides to base image model.
+    ColorModel colorModel = image->colorModel();
+
+    if (colorModel == ColorModel::Gray) {
+        ImageArray<uint8_t> tmp = convertGrayImg2RGB(data);
+        data = std::move(tmp);
+        colorModel = ColorModel::RGB;
+    }
+
+    if (colorModel == ColorModel::GrayA) {
+        ImageArray<uint8_t> tmp = convertGrayAlphaImg2RGBA(data);
+        data = std::move(tmp);
+        colorModel = ColorModel::RGBA;
+    }
+
+    if (colorModel == ColorModel::CMYK) {
+        ImageArray<uint8_t> tmp = convertCMYKImg2RGB(data);
+        data = std::move(tmp);
+        colorModel = ColorModel::RGB;
+    }
+
+    if (colorModel == ColorModel::CMYKA) {
+        ImageArray<uint8_t> tmp = convertCMYKAImg2RGBA(data);
+        data = std::move(tmp);
+        colorModel = ColorModel::RGBA;
+    }
+
+    if (colorModel != ColorModel::RGB and colorModel != ColorModel::RGBA and
+        colorModel != ColorModel::BGR and colorModel != ColorModel::BGRA) {
+
+        return false;
+    }
+
+    if (data.empty()) {
+        return false;
+    }
+
+    WebPConfig config;
+    if (!WebPConfigPreset(&config, WEBP_PRESET_PHOTO, infos->quality())) {
+        return false;
+    }
+
+    // Add additional tuning:
+    config.sns_strength = 90; //default from google open source doc
+    config.filter_sharpness = 6; //default from google open source doc
+    config.alpha_quality = std::max(infos->quality(), 90);
+    config.lossless = 0; //lossy
+    bool config_valid = WebPValidateConfig(&config);
+
+    if (!config_valid) {
+        return false;
+    }
+
+    WebPPicture encoded;
+    if (!WebPPictureInit(&encoded)) {
+        return false;
+    }
+
+    encoded.height = data.shape()[0];
+    encoded.width = data.shape()[1];
+
+    bool ok = true;
+
+    if (colorModel == ColorModel::RGB) {
+        ok = WebPPictureImportRGB(&encoded, &data.atUnchecked(0,0,0), data.strides()[0]);
+    } else if (colorModel == ColorModel::RGBA) {
+        ok = WebPPictureImportRGBA(&encoded, &data.atUnchecked(0,0,0), data.strides()[0]);
+    } else if (colorModel == ColorModel::BGR) {
+        ok = WebPPictureImportBGR(&encoded, &data.atUnchecked(0,0,0), data.strides()[0]);
+    } else if (colorModel == ColorModel::BGRA) {
+        ok = WebPPictureImportBGRA(&encoded, &data.atUnchecked(0,0,0), data.strides()[0]);
+    }
+    if (!ok) {
+        WebPPictureFree(&encoded);
+        return false;
+    }
+
+    WebPMemoryWriter writer;
+    WebPMemoryWriterInit(&writer);
+    encoded.writer = WebPMemoryWrite;
+    encoded.custom_ptr = &writer;
+
+    ok = WebPEncode(&config, &encoded);
+
+    if (!ok) {
+        WebPPictureFree(&encoded);
+        WebPMemoryWriterClear(&writer);
+        return false;
+    }
+
+    std::ofstream out(file, std::ios::binary | std::ios::out);
+    if (out) {
+        out.write(reinterpret_cast<char*>(writer.mem), writer.size);
+    }
+
+    WebPPictureFree(&encoded);
+    WebPMemoryWriterClear(&writer);
+    ok = out.good();
+    return ok;
 }
 #endif
 
@@ -629,7 +733,13 @@ bool writeImage(const char* fileName, Image* image, ImageInfos* infos, bool save
 		ok = writePngFile(fileName, image, infos);
 	} else if (fName.endsWith(".jpg", Qt::CaseInsensitive) || fName.endsWith(".jpeg", Qt::CaseInsensitive)) {
 		ok = writeJpgFile(fileName, image, infos);
-	} else {
+    }
+#ifdef USE_NATIVE_LIBWEBP
+    else if (fName.endsWith(".webp", Qt::CaseInsensitive)) {
+        ok = writeWebPFile(fileName, image, infos);
+    }
+#endif
+    else {
 		//default case use ImageMagick to write.
 		std::string map;
 

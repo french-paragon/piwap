@@ -73,6 +73,122 @@ public:
 	}
 };
 
+template <typename ScalarT>
+ImageArray<ScalarT> convertGrayImg2RGB(ImageArray<ScalarT> const& gray) {
+
+    if (gray.empty()) {
+        return ImageArray<ScalarT>();
+    }
+
+    typename ImageArray<ScalarT>::ShapeBlock originalShape = gray.shape();
+    typename ImageArray<ScalarT>::ShapeBlock shape = originalShape;
+    shape[2] = 3;
+
+    ImageArray<ScalarT> ret(shape);
+
+    for (int i = 0; i < shape[0]; i++) {
+        for (int j = 0; j < shape[1]; j++) {
+            for (int c = 0; c < shape[2]; c++) {
+                ret.atUnchecked(i,j,c) = gray.valueUnchecked(i,j,0);
+            }
+        }
+    }
+
+    return ret;
+}
+
+template <typename ScalarT>
+ImageArray<ScalarT> convertGrayAlphaImg2RGBA(ImageArray<ScalarT> const& gray) {
+
+    if (gray.empty()) {
+        return ImageArray<ScalarT>();
+    }
+
+    typename ImageArray<ScalarT>::ShapeBlock originalShape = gray.shape();
+    typename ImageArray<ScalarT>::ShapeBlock shape = originalShape;
+    shape[2] = 4;
+
+    ImageArray<ScalarT> ret(shape);
+
+    for (int i = 0; i < shape[0]; i++) {
+        for (int j = 0; j < shape[1]; j++) {
+            for (int c = 0; c < 3; c++) {
+                ret.atUnchecked(i,j,c) = gray.valueUnchecked(i,j,0);
+            }
+            ret.atUnchecked(i,j,3) = gray.valueUnchecked(i,j,1);
+        }
+    }
+
+    return ret;
+}
+
+/*!
+ * \brief convertCMYKImg2RGB simple fallback conversion function, should not be used for serious conversion
+ * \param cmyk cmyk image data
+ * \return the estimated rgb representation of the image in rgb
+ */
+template <typename ScalarT>
+ImageArray<ScalarT> convertCMYKImg2RGB(ImageArray<ScalarT> const& cmyk) {
+
+    if (cmyk.empty()) {
+        return ImageArray<ScalarT>();
+    }
+
+    typename ImageArray<ScalarT>::ShapeBlock originalShape = cmyk.shape();
+    typename ImageArray<ScalarT>::ShapeBlock shape = originalShape;
+    shape[2] = 3;
+
+    constexpr ScalarT whiteLevel = typedWhiteLevel<ScalarT>();
+
+    ImageArray<ScalarT> ret(shape);
+
+    for (int i = 0; i < shape[0]; i++) {
+        for (int j = 0; j < shape[1]; j++) {
+            float black = float(cmyk.valueUnchecked(i,j,3))/whiteLevel;
+            for (int c = 0; c < 3; c++) {
+                float color = float(cmyk.valueUnchecked(i,j,c))/whiteLevel;
+                ret.atUnchecked(i,j,c) = whiteLevel*(1-color)*(1-black);
+            }
+        }
+    }
+
+    return ret;
+}
+
+/*!
+ * \brief convertCMYKAImg2RGBA simple fallback conversion function, should not be used for serious conversion
+ * \param cmyka cmyka image data
+ * \return the estimated rgba representation of the image in rgba
+ */
+template <typename ScalarT>
+ImageArray<ScalarT> convertCMYKAImg2RGBA(ImageArray<ScalarT> const& cmyka) {
+
+    if (cmyka.empty()) {
+        return ImageArray<ScalarT>();
+    }
+
+    typename ImageArray<ScalarT>::ShapeBlock originalShape = cmyka.shape();
+    typename ImageArray<ScalarT>::ShapeBlock shape = originalShape;
+    shape[2] = 3;
+
+    constexpr ScalarT whiteLevel = typedWhiteLevel<ScalarT>();
+
+    ImageArray<ScalarT> ret(shape);
+
+    for (int i = 0; i < shape[0]; i++) {
+        for (int j = 0; j < shape[1]; j++) {
+            float black = float(cmyka.valueUnchecked(i,j,3))/whiteLevel;
+            for (int c = 0; c < 3; c++) {
+                float color = float(cmyka.valueUnchecked(i,j,c))/whiteLevel;
+                ret.atUnchecked(i,j,c) = whiteLevel*(1-color)*(1-black);
+            }
+            ret.atUnchecked(i,j,3) = cmyka.valueUnchecked(i,j,4);
+        }
+    }
+
+    return ret;
+}
+
 class Image : public QObject
 {
 public:
